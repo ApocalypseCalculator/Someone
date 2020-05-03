@@ -1,5 +1,6 @@
 # Someone
 **ABOUT ME AND HOW TO RUN**
+
 Someone bot for Discord. Brings back Discord's 2018 April Fools joke.
 
 Created by ApocalypseCalculator.
@@ -14,6 +15,7 @@ if it is not working, delete the node modules folder, re-initialize the node pro
 
 
 **Using the bot**
+
 This bot duplicates the @Someone April Fools joke. To use it, simply ping the bot (you should name the bot Someone to make it simple).
 
 You can use someone!info for commands and troll other people by telling them to use the someone!help command >:)
