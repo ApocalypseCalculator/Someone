@@ -1,0 +1,25 @@
+{
+  "name": "Someone",
+  "version": "1.0.0",
+  "description": "Someone bot for Discord. Brings back Discord's 2018 April Fools joke.
+",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ApocalypseCalculator/Someone"
+  },
+  "author": "ApocalypseCalculator",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ApocalypseCalculator/Someone/issues"
+  },
+  "homepage": "https://github.com/ApocalypseCalculator/Someone/blob/master/README.md",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "express": "^4.17.1"
+  }
+}
