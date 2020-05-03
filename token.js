@@ -1,1 +1,1 @@
-module.exports("NzA1MTM1NDMyNTg4ODUzMjg4.XqnSmA.6rpTZ-Pbimo3gcB8QYA6X-8oghg");
+module.exports("put your token here!");
