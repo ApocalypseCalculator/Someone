@@ -1,1 +1,1 @@
-module.exports("put your bot token here!");
+module.exports("NzA1MTM1NDMyNTg4ODUzMjg4.XqnSmA.6rpTZ-Pbimo3gcB8QYA6X-8oghg");
