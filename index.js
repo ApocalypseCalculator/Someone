@@ -4,6 +4,9 @@ const AED = require('./server');
 const client = new Discord.Client();
 const token = require('./token');
 var lastpingerid = '';
+var lastpingtime = 0;
+var datenow = 100000;
+var pingspacing = 60000;
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -17,6 +20,7 @@ client.on('ready', () => {
 })
 
 client.on('message', msg => {
+  datenow = new Date(1500000000000);
   if (msg.author.id === client.user.id) {
     return;
   }
@@ -28,7 +32,7 @@ client.on('message', msg => {
       message.edit(`Pong! Latency is ${Math.floor(message.createdAt - msg.createdAt)}ms. API Latency is ${Math.round(client.ping)}ms`);
     });
   }
-  else if (msg.isMentioned(client.user.id) && msg.author.id === lastpingerid) {
+  else if (msg.isMentioned(client.user.id) && msg.author.id === lastpingerid && datenow-lastpingtime < pingspacing) {
     msg.reply('calm down with the pings dude');
   }
   else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
@@ -38,6 +42,7 @@ client.on('message', msg => {
       webhook.delete();
       msg.delete(0);
       lastpingerid = msg.author.id;
+      lastpingtime = new Date(1500000000000);
     }).catch(error => console.log(error));
   }
   else if (msg.content === 'someone!help') {
