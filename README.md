@@ -13,6 +13,8 @@ if you have node installed, go to command prompt, head to bot folder directory, 
 
 if it is not working, delete the node modules folder, re-initialize the node project with `npm init`, and install the 2 required dependencies with the commands `npm install discord` and `npm install express`
 
+make sure discord.js is v11.5.1 and express.js is v4.17.1
+
 
 **Using the bot**
 
