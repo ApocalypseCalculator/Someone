@@ -33,7 +33,7 @@ client.on('message', msg => {
   }
   else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
     msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
-      console.log('pinger: ' + msg.author.username);
+      console.log('pinger: ' + msg.author.username + '\t content: ' + msg.content.replace('<@!'+client.user.id+'>','(botping)'));
       webhook.send(msg.content.replace(client.user.id,getrandomuserid(msg)));
       webhook.delete();
       msg.delete(0);
