@@ -1,1 +1,1 @@
-module.exports("put your token here!");
+module.exports = "put your token here!";
