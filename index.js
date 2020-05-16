@@ -38,7 +38,10 @@ client.on('message', msg => {
       webhook.delete();
       msg.delete(0);
       lastpingerid = msg.author.id;
-    }).catch(error => console.log(error));
+    }).catch(error => {
+      console.log(error);
+      msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+    });
   }
   else if (msg.content === prefix + 'help') {
     msg.reply('what, you want help? well, thats too bad, no help for you.')
@@ -52,7 +55,10 @@ client.on('message', msg => {
           }
         }))
       })
-    }).catch(console.error);
+    }).catch(error => {
+      console.log(error);
+      msg.channel.send('Error on clearing webhooks. Try again or contact <@492079026089885708> if this problem persists');
+    });
     msg.channel.send('webhooks cleared');
   }
   else if (msg.content === prefix + 'info') {
@@ -60,7 +66,7 @@ client.on('message', msg => {
       .setColor(13833)
       .setAuthor(client.user.username, client.user.avatarURL)
       .setTitle('Information About Someone Bot')
-      .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
+      .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by <@492079026089885708>. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
       .addBlankField()
       .addField('Ping Command', prefix + 'ping', true)
       .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
