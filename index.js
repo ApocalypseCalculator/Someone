@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
-const AED = require('./server');
-
 const client = new Discord.Client();
-const token = require('./token');
 var lastpingerid = '';
+
+const token = require('./token'); //you can replace the require(./token) with the token string if you want
+const prefix = 'someone!'; //you can change this if you like
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -17,13 +17,13 @@ client.on('ready', () => {
 })
 
 client.on('message', msg => {
-  if (msg.author.id === client.user.id) {
+  if (msg.author.id === client.user.id || msg.author.bot) {
     return;
   }
-  else if(msg.channel.type === 'dm' || msg.channel.type === 'group'){
+  else if (msg.channel.type === 'dm' || msg.channel.type === 'group') {
     return;
   }
-  else if (msg.content === 'someone!ping') {
+  else if (msg.content === prefix + 'ping') {
     const message = msg.reply('poooong').then((message) => {
       message.edit(`Pong! Latency is ${Math.floor(message.createdAt - msg.createdAt)}ms. API Latency is ${Math.round(client.ping)}ms`);
     });
@@ -33,17 +33,17 @@ client.on('message', msg => {
   }
   else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
     msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
-      console.log('pinger: ' + msg.author.username + '\t content: ' + msg.content.replace('<@!'+client.user.id+'>','(botping)'));
-      webhook.send(msg.content.replace(client.user.id,getrandomuserid(msg)));
+      console.log('pinger: ' + msg.author.username + '\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
+      webhook.send(msg.content.replace(client.user.id, getrandomuserid(msg)));
       webhook.delete();
       msg.delete(0);
       lastpingerid = msg.author.id;
     }).catch(error => console.log(error));
   }
-  else if (msg.content === 'someone!help') {
+  else if (msg.content === prefix + 'help') {
     msg.reply('what, you want help? well, thats too bad, no help for you.')
   }
-  else if (msg.content === 'someone!webhookclear' && msg.member.hasPermission('ADMINISTRATOR')) {
+  else if (msg.content === prefix + 'webhookclear' && msg.member.hasPermission('ADMINISTRATOR')) {
     msg.channel.fetchWebhooks().then(hooks => {
       hooks.forEach(hook => {
         msg.guild.fetchMembers().then(members => members.forEach(member => {
@@ -55,7 +55,7 @@ client.on('message', msg => {
     }).catch(console.error);
     msg.channel.send('webhooks cleared');
   }
-  else if (msg.content === 'someone!info') {
+  else if (msg.content === prefix + 'info') {
     msg.channel.send({
       embed: {
         color: 13833,
@@ -64,16 +64,22 @@ client.on('message', msg => {
           icon_url: client.user.avatarURL
         },
         title: 'Commands List',
-        description: "whats up. I am the annoying spam pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot",
+        description: "whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot",
         fields: [{
           name: 'Ping Command',
-          value: "someone!ping"
+          value: prefix + "ping"
         }, {
           name: 'Webhook Clearing Command',
-          value: "someone!webhookclear"
+          value: prefix + "webhookclear"
         }, {
           name: 'Troll Command',
-          value: 'someone!help'
+          value: prefix + 'help'
+        }, {
+          name: '',
+          value: ''
+        }, {
+          name: 'Server Count: ',
+          value: client.guilds.size
         }],
         timestamp: new Date(),
         footer: {
@@ -101,5 +107,4 @@ function getrandomuserid(msg) {
   return id;
 }
 
-AED();
 client.login(token);
