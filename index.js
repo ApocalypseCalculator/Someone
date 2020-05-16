@@ -56,38 +56,20 @@ client.on('message', msg => {
     msg.channel.send('webhooks cleared');
   }
   else if (msg.content === prefix + 'info') {
-    msg.channel.send({
-      embed: {
-        color: 13833,
-        author: {
-          name: client.user.username,
-          icon_url: client.user.avatarURL
-        },
-        title: 'Commands List',
-        description: "whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot",
-        fields: [{
-          name: 'Ping Command',
-          value: prefix + "ping"
-        }, {
-          name: 'Webhook Clearing Command',
-          value: prefix + "webhookclear"
-        }, {
-          name: 'Troll Command',
-          value: prefix + 'help'
-        }, {
-          name: '',
-          value: ''
-        }, {
-          name: 'Server Count: ',
-          value: client.guilds.size
-        }],
-        timestamp: new Date(),
-        footer: {
-          icon_url: client.user.avatarURL,
-          text: "Someone Bot By ApocalypseCalculator - Under MIT License"
-        }
-      }
-    });
+    const msgembed = new Discord.RichEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL)
+      .setTitle('Information About Someone Bot')
+      .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
+      .addField('Ping Command', prefix + 'ping', true)
+      .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
+      .addField('Troll Command', prefix + 'help', true)
+      .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
+      .addBlankField()
+      .addField('Server Count: ', client.guilds.size)
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+    msg.channel.send(msgembed);
   }
 })
 
@@ -103,7 +85,7 @@ function getrandomuserid(msg) {
   })
   var randomn = Math.round((amount - 1) * Math.random());
   var id = members[randomn];
-  console.log('returned id: ' + id);
+  console.log('returned id: ' + id + '\t server: ' + msg.guild.id);
   return id;
 }
 
