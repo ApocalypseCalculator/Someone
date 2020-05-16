@@ -32,16 +32,23 @@ client.on('message', msg => {
     msg.reply('calm down with the pings dude');
   }
   else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
-    msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
-      console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
-      webhook.send(msg.content.replace(client.user.id, getrandomuserid(msg)));
-      webhook.delete();
-      msg.delete(0);
-      lastpingerid = msg.author.id;
-    }).catch(error => {
-      console.log(error);
-      msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
-    });
+    msg.guild.fetchMember(client.user).then(member => {
+      if(member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))){
+        msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
+          console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
+          webhook.send(msg.content.replace(client.user.id, getrandomuserid(msg)));
+          webhook.delete();
+          msg.delete(0);
+          lastpingerid = msg.author.id;
+        }).catch(error => {
+          console.log(error);
+          msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+        });
+      }
+      else{
+        msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
+      }
+    })
   }
   else if (msg.content === prefix + 'help') {
     msg.reply('what, you want help? well, thats too bad, no help for you.')
