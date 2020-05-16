@@ -61,6 +61,7 @@ client.on('message', msg => {
       .setAuthor(client.user.username, client.user.avatarURL)
       .setTitle('Information About Someone Bot')
       .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
+      .addBlankField()
       .addField('Ping Command', prefix + 'ping', true)
       .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
       .addField('Troll Command', prefix + 'help', true)
