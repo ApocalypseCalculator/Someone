@@ -33,7 +33,7 @@ client.on('message', msg => {
   }
   else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
     msg.guild.fetchMember(client.user).then(member => {
-      if(member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))){
+      if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
         msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
           console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
           webhook.send(msg.content.replace(client.user.id, getrandomuserid(msg)));
@@ -45,7 +45,7 @@ client.on('message', msg => {
           msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
         });
       }
-      else{
+      else {
         msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
       }
     })
@@ -80,7 +80,11 @@ client.on('message', msg => {
       .addField('Troll Command', prefix + 'help', true)
       .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
       .addBlankField()
-      .addField('Server Count: ', client.guilds.size)
+      .addField('Server Count', client.guilds.size, true)
+      .addField('Bot List Links', '[top.gg](https://top.gg/bot/705135432588853288)', true)
+      .addField('Vote Links', '[top.gg](https://top.gg/bot/705135432588853288/vote)', true)
+      .addField('Invite Links', '[admin](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot) or [webhooks & msgs](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=536879104&scope=bot)', true)
+      .addBlankField()
       .setTimestamp()
       .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
     msg.channel.send(msgembed);
