@@ -47,6 +47,14 @@ client.on('message', msg => {
       }
       else {
         msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
+        const embed = new Discord.RichEmbed()
+          .setColor(13833)
+          .setAuthor(client.user.username, client.user.avatarURL)
+          .setTitle('Permissions Demo')
+          .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
+          .setTimestamp()
+          .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+        msg.channel.send(embed);
       }
     })
   }
