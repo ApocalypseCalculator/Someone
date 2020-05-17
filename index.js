@@ -84,6 +84,7 @@ client.on('message', msg => {
       .addField('Bot List Links', '[top.gg](https://top.gg/bot/705135432588853288)', true)
       .addField('Vote Links', '[top.gg](https://top.gg/bot/705135432588853288/vote)', true)
       .addField('Invite Links', '[admin](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot) or [webhooks & msgs](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=536879104&scope=bot)', true)
+      .addField('Support Discord Server', '[Someone Support](https://discord.gg/5WmPnYx)', true)
       .addBlankField()
       .setTimestamp()
       .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);

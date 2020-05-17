@@ -1,6 +1,6 @@
 {
   "name": "Someone",
-  "version": "1.0.3",
+  "version": "1.2.2",
   "description": "Someone bot for Discord. Brings back Discord's 2018 April Fools joke.",
   "main": "index.js",
   "scripts": {
