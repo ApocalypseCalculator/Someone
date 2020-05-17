@@ -27,3 +27,6 @@ If you get a webhook max length exceeded error message, simply run the command s
 Also make sure to grant the bot admin priveledges or it may not run properly
 
 If there are any bugs feel free to contact me through Discord at ApocalypseCalculator#7096
+
+
+**You can find a hosted version of this bot at [top.gg](https://top.gg/bot/705135432588853288), please vote for my bot**
