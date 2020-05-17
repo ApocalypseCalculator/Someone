@@ -30,3 +30,5 @@ If there are any bugs feel free to contact me through Discord at ApocalypseCalcu
 
 
 **You can find a hosted version of this bot at [top.gg](https://top.gg/bot/705135432588853288), please vote for my bot**
+
+![Demo GIF](https://cdn.discordapp.com/attachments/711369875007995954/711617131866882058/demo2.gif)
