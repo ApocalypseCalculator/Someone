@@ -31,7 +31,7 @@ client.on('message', msg => {
   else if (msg.isMentioned(client.user.id) && msg.author.id === lastpingerid) {
     msg.reply('calm down with the pings dude');
   }
-  else if (msg.isMentioned(client.user.id) && !msg.author.bot) {
+  else if (msg.isMentioned(client.user.id) && msg.content.includes('<@!')) {
     msg.guild.fetchMember(client.user).then(member => {
       if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
         msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
@@ -57,6 +57,9 @@ client.on('message', msg => {
         msg.channel.send(embed);
       }
     })
+  }
+  else if(msg.isMentioned(client.user.id)){
+    msg.channel.send("I see what you are doing, and I don't like it");
   }
   else if (msg.content === prefix + 'help') {
     msg.reply('what, you want help? well, thats too bad, no help for you.')
