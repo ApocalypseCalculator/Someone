@@ -31,12 +31,17 @@ client.on('message', msg => {
   else if (msg.isMentioned(client.user.id) && msg.author.id === lastpingerid) {
     msg.reply('calm down with the pings dude');
   }
-  else if (msg.isMentioned(client.user.id) && msg.content.includes('<@!')) {
+  else if (msg.isMentioned(client.user.id) && !msg.content.includes('\<@')) {
     msg.guild.fetchMember(client.user).then(member => {
       if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
         msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
           console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
-          webhook.send(msg.content.replace('<@!' + client.user.id + '>', '<@!' + getrandomuserid(msg) + '>'));
+          if(msg.content.includes('<@!' + client.user.id + '>')){
+            webhook.send(msg.content.replace('<@!' + client.user.id + '>', '<@!' + getrandomuserid(msg) + '>'));
+          }
+          else{
+            webhook.send(msg.content.replace('<@' + client.user.id + '>', '<@!' + getrandomuserid(msg) + '>'));
+          }
           webhook.delete();
           msg.delete(0);
           lastpingerid = msg.author.id;
@@ -60,6 +65,7 @@ client.on('message', msg => {
   }
   else if(msg.isMentioned(client.user.id)){
     msg.channel.send("I see what you are doing, and I don't like it");
+    console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
   else if (msg.content === prefix + 'help') {
     msg.reply('what, you want help? well, thats too bad, no help for you.')
