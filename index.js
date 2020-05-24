@@ -132,8 +132,10 @@ function getrandomuserid(msg) {
   var amount = 0;
   server.members.forEach((member, key) => {
     if (!member.user.bot) {
-      members.push(key);
-      amount++;
+      if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
+        members.push(key);
+        amount++;
+      }
     }
   })
   var randomn = Math.round((amount - 1) * Math.random());
