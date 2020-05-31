@@ -45,6 +45,9 @@ client.on('message', msg => {
     }
     else {
       msg.guild.fetchMember(client.user).then(member => {
+        if (usercount(msg) == 0) {
+          msg.channel.send("Bruh you're the only non-bot guy who can see this channel how you gonna ping someone");
+        }
         if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
           msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
             console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
@@ -128,10 +131,10 @@ client.on('message', msg => {
 
 function getrandomuserid(msg) {
   var server = msg.guild;
-  let members = [msg.author.id];
+  let members = [];
   var amount = 0;
   server.members.forEach((member, key) => {
-    if (!member.user.bot) {
+    if (!member.user.bot && member != msg.member) {
       if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
         members.push(key);
         amount++;
@@ -142,6 +145,21 @@ function getrandomuserid(msg) {
   var id = members[randomn];
   console.log('returned id: ' + id + '\t server: ' + msg.guild.id);
   return id;
+}
+
+function usercount(msg) {
+  var server = msg.guild;
+  let members = [];
+  var amount = 0;
+  server.members.forEach((member, key) => {
+    if (!member.user.bot && member != msg.member) {
+      if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
+        members.push(key);
+        amount++;
+      }
+    }
+  })
+  return amount;
 }
 
 client.on('reconnecting', () => {
