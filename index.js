@@ -48,7 +48,10 @@ client.on('message', msg => {
         if (usercount(msg) == 0) {
           msg.channel.send("Bruh you're the only non-bot guy who can see this channel how you gonna ping someone");
         }
-        if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
+        else if (msg.member.displayName.includes('clyde')) {
+          msg.channel.send("I'm really sorry, but for some reason Discord doesn't allow the name 'clyde' in webhooks. Would be great if you changed your nickname!");
+        }
+        else if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
           msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
             console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
             if (msg.content.includes('<@!' + client.user.id + '>')) {
