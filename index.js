@@ -182,6 +182,7 @@ client.on('message', msg => {
       .setColor(13833)
       .setAuthor(client.user.username, client.user.avatarURL)
       .setTitle('Global Ping Leaderboard')
+      .setDescription('The following are the first 10 people on the leaderboard')
       .addBlankField()
       .setTimestamp()
       .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
