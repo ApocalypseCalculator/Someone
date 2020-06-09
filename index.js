@@ -118,6 +118,7 @@ client.on('message', msg => {
       .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
       .addField('Pings Received Counter Command', prefix + 'pingcount', true)
       .addField('Global Ping Leaderboard', prefix + 'gleaderboard', true)
+      .addField('Check Global Rank', prefix + 'grank', true)
       .addField('Troll Command', prefix + 'help', true)
       .addField('Reconnect Count Since Last Reboot', prefix + 'discordbad', true)
       .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
@@ -192,18 +193,18 @@ client.on('message', msg => {
     list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
     if (list.length < 10) {
       for (var i = 0; i < list.length; i++) {
-        msgembed.addField('#' + (i+1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
+        msgembed.addField('#' + (i + 1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
       }
     }
     else {
       for (var i = 0; i < 10; i++) {
-        msgembed.addField('#' + (i+1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
+        msgembed.addField('#' + (i + 1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
       }
     }
     msgembed.addBlankField();
     msg.channel.send(msgembed);
   }
-  else if(msg.content === prefix + 'privacy'){
+  else if (msg.content === prefix + 'privacy') {
     const msgembed = new Discord.RichEmbed()
       .setColor(13833)
       .setAuthor(client.user.username, client.user.avatarURL)
@@ -214,6 +215,47 @@ client.on('message', msg => {
       .setTimestamp()
       .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
     msg.channel.send(msgembed);
+  }
+  else if (msg.content.startsWith(prefix + 'grank')) {
+    let rawdata = fs.readFileSync('globalLeaderboard.json');
+    let parsed = JSON.parse(rawdata);
+    let list = parsed.users;
+    list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
+    const msgembed = new Discord.RichEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL)
+      .setTitle('Global Ping Leaderboard Rank Information')
+      .setDescription("Shows your global rank, to show someone else's rank, append a ping to the command")
+      .addBlankField()
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+    if (msg.mentions.members.size > 1) {
+      msg.channel.send('Bro please mention one user you want to check pings for');
+    }
+    else if (msg.mentions.members.size == 0) {
+      const botuser = (element) => element.discordid === msg.author.id;
+      var x = list.findIndex(botuser);
+      if (x != -1) {
+        msgembed.addField('Rank info', '<@!' + msg.author.id + '> is ranked **#' + (list.length - x) + '** globally for pings received').addBlankField();
+        msg.channel.send(msgembed);
+      }
+      else {
+        msgembed.addField('Rank info', '<@!' + msg.author.id + '> is not ranked').addBlankField();
+        msg.channel.send(msgembed);
+      }
+    }
+    else {
+      const botuser = (element) => element.discordid === msg.mentions.users.first().id;
+      var x = list.findIndex(botuser);
+      if (x != -1) {
+        msgembed.addField('Ping Count', '<@!' + msg.mentions.users.first().id + '> is ranked **#' + (list.length - x) + '** globally for pings received').addBlankField();
+        msg.channel.send(msgembed);
+      }
+      else {
+        msgembed.addField('Ping Count', '<@!' + msg.mentions.users.first().id + '> is not ranked').addBlankField();
+        msg.channel.send(msgembed);
+      }
+    }
   }
 })
 
