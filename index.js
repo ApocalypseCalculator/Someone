@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 var lastpingerid = '';
@@ -54,12 +55,14 @@ client.on('message', msg => {
         else if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
           msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
             console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
+            var randid = getrandomuserid(msg);
             if (msg.content.includes('<@!' + client.user.id + '>')) {
-              webhook.send(msg.content.replace('<@!' + client.user.id + '>', '<@!' + getrandomuserid(msg) + '>'));
+              webhook.send(msg.content.replace('<@!' + client.user.id + '>', '<@!' + randid + '>'));
             }
             else {
-              webhook.send(msg.content.replace('<@' + client.user.id + '>', '<@!' + getrandomuserid(msg) + '>'));
+              webhook.send(msg.content.replace('<@' + client.user.id + '>', '<@!' + randid + '>'));
             }
+            addtoLeaderboard(randid);
             webhook.delete();
             msg.delete(0);
             lastpingerid = msg.author.id;
@@ -113,6 +116,8 @@ client.on('message', msg => {
       .addBlankField()
       .addField('Ping Command', prefix + 'ping', true)
       .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
+      .addField('Pings Received Counter Command', prefix + 'pingcount', true)
+      .addField('Global Ping Leaderboard', prefix + 'gleaderboard', true)
       .addField('Troll Command', prefix + 'help', true)
       .addField('Reconnect Count Since Last Reboot', prefix + 'discordbad', true)
       .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
@@ -122,6 +127,7 @@ client.on('message', msg => {
       .addField('Vote Links', '[top.gg](https://top.gg/bot/705135432588853288/vote)', true)
       .addField('Invite Links', '[admin](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot) or [webhooks & msgs](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=536879104&scope=bot)', true)
       .addField('Support Discord Server', '[Someone Support](https://discord.gg/5WmPnYx)', true)
+      .addField('Privacy Policy', prefix + 'privacy', true)
       .addBlankField()
       .setTimestamp()
       .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
@@ -129,6 +135,84 @@ client.on('message', msg => {
   }
   else if (msg.content === prefix + 'discordbad') {
     msg.channel.send('Discord API is fucking trash. I had to reconnect ' + reconnectcount + ' times since my last reboot because Discord is fucking stoopid');
+  }
+  else if (msg.content.startsWith(prefix + 'pingcount')) {
+    const msgembed = new Discord.RichEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL)
+      .addBlankField()
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+    if (msg.mentions.members.size > 1) {
+      msg.channel.send('Bro please mention one user you want to check pings for');
+    }
+    else if (msg.mentions.members.size == 0) {
+      msgembed.setTitle('Recorded Pings Received By ' + msg.author.username);
+      let rawdata = fs.readFileSync('globalLeaderboard.json');
+      let parsed = JSON.parse(rawdata);
+      const botuser = (element) => element.discordid === msg.author.id;
+      var x = parsed.users.findIndex(botuser);
+      if (x != -1) {
+        msgembed.addField('Ping Count', '<@!' + msg.author.id + '> has ' + parsed.users[x].pinged + ' received pings through this bot').addBlankField();
+        msg.channel.send(msgembed);
+      }
+      else {
+        msgembed.addField('Ping Count', '<@!' + msg.author.id + '> has 0 received pings through this bot').addBlankField();
+        msg.channel.send(msgembed);
+      }
+    }
+    else {
+      msgembed.setTitle('Recorded Pings Received By ' + msg.mentions.users.first().username);
+      let rawdata = fs.readFileSync('globalLeaderboard.json');
+      let parsed = JSON.parse(rawdata);
+      const botuser = (element) => element.discordid === msg.mentions.users.first().id;
+      var x = parsed.users.findIndex(botuser);
+      if (x != -1) {
+        msgembed.addField('Ping Count', '<@!' + msg.mentions.users.first().id + '> has ' + parsed.users[x].pinged + ' received pings through this bot').addBlankField();
+        msg.channel.send(msgembed);
+      }
+      else {
+        msgembed.addField('Ping Count', '<@!' + msg.mentions.users.first().id + '> has 0 received pings through this bot').addBlankField();
+        msg.channel.send(msgembed);
+      }
+    }
+  }
+  else if (msg.content === prefix + 'gleaderboard') {
+    const msgembed = new Discord.RichEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL)
+      .setTitle('Global Ping Leaderboard')
+      .addBlankField()
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+    let rawdata = fs.readFileSync('globalLeaderboard.json');
+    let parsed = JSON.parse(rawdata);
+    let list = parsed.users;
+    list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
+    if (list.length < 10) {
+      for (var i = 0; i < list.length; i++) {
+        msgembed.addField('#' + (i+1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
+      }
+    }
+    else {
+      for (var i = 0; i < 10; i++) {
+        msgembed.addField('#' + (i+1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
+      }
+    }
+    msgembed.addBlankField();
+    msg.channel.send(msgembed);
+  }
+  else if(msg.content === prefix + 'privacy'){
+    const msgembed = new Discord.RichEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL)
+      .setTitle('Privacy Policy')
+      .addBlankField()
+      .addField('Privacy Policy of Someone bot', 'By adding Someone Bot™️ to your server, you agree to having your Discord snowflakes collected by us and retained indefinitely. We collect this data in order to store information on how many times a user has been pinged through this bot. This privacy policy can change without notice, and we encourage you to check it regularly. If you do not agree with this policy, please promptly kick Someone Bot from your server.')
+      .addBlankField()
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+    msg.channel.send(msgembed);
   }
 })
 
@@ -163,6 +247,25 @@ function usercount(msg) {
     }
   })
   return amount;
+}
+
+function addtoLeaderboard(id) {
+  let rawdata = fs.readFileSync('globalLeaderboard.json');
+  let parsed = JSON.parse(rawdata);
+  const botuser = (element) => element.discordid === id;
+  var x = parsed.users.findIndex(botuser);
+  if (x == -1) {
+    let newuser = {
+      discordid: id,
+      pinged: 1
+    }
+    parsed.users.push(newuser);
+  }
+  else {
+    parsed.users[x].pinged++;
+  }
+  let newdata = JSON.stringify(parsed);
+  fs.writeFileSync('globalLeaderboard.json', newdata);
 }
 
 client.on('reconnecting', () => {
