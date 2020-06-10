@@ -192,7 +192,7 @@ client.on('message', msg => {
     let parsed = JSON.parse(rawdata);
     let list = parsed.users;
     list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
-    for (var i = 0; i < (list.length < 10) ? list.length : 10; i++) {
+    for (var i = 0; i < ((list.length < 10) ? list.length : 10); i++) {
       if(i == 0){
         msgembed.addField('#' + (i + 1), '🥇<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === creatorid) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings');
       }
