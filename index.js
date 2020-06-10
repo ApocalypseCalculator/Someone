@@ -6,14 +6,15 @@ var reconnectcount = 0;
 
 const token = require('./token'); //you can replace the require(./token) with the token string if you want
 const prefix = 'someone!'; //you can change this if you like
+const creatorid = '492079026089885708';
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     status: "online",
     game: {
-      name: " with your useless life",
-      type: "PLAYING"
+      name: " " + prefix + 'help for commands',
+      type: "WATCHING"
     }
   });
 })
@@ -112,7 +113,7 @@ client.on('message', msg => {
       .setColor(13833)
       .setAuthor(client.user.username, client.user.avatarURL)
       .setTitle('Information About Someone Bot')
-      .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by <@492079026089885708>. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
+      .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by <@" + creatorid + ">. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
       .addBlankField()
       .addField('Ping Command', prefix + 'ping', true)
       .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
@@ -191,17 +192,21 @@ client.on('message', msg => {
     let parsed = JSON.parse(rawdata);
     let list = parsed.users;
     list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
-    if (list.length < 10) {
-      for (var i = 0; i < list.length; i++) {
-        msgembed.addField('#' + (i + 1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
+    for (var i = 0; i < (list.length < 10) ? list.length : 10; i++) {
+      if(i == 0){
+        msgembed.addField('#' + (i + 1), '🥇<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === creatorid) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings');
+      }
+      else if(i == 1){
+        msgembed.addField('#' + (i + 1), '🥈<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === creatorid) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings');
+      }
+      else if(i == 2){
+        msgembed.addField('#' + (i + 1), '🥉<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === creatorid) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings');
+      }
+      else{
+        msgembed.addField('#' + (i + 1), '🏅<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === creatorid) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings');
       }
     }
-    else {
-      for (var i = 0; i < 10; i++) {
-        msgembed.addField('#' + (i + 1), '<@!' + list[list.length - i - 1].discordid + '> : ' + list[list.length - i - 1].pinged + ' pings');
-      }
-    }
-    msgembed.addBlankField();
+    msgembed.addField("\u200B", 'Out of ' + list.length + ' ranked users').addBlankField();
     msg.channel.send(msgembed);
   }
   else if (msg.content === prefix + 'privacy') {
