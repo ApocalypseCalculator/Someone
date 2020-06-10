@@ -13,7 +13,7 @@ client.on('ready', () => {
   client.user.setPresence({
     status: "online",
     game: {
-      name: " " + prefix + 'help for commands',
+      name: " " + prefix + 'info for commands',
       type: "WATCHING"
     }
   });
