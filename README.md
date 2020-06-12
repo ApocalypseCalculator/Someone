@@ -11,7 +11,7 @@ Inside the token.js file, put your bot token inside the `""`. save the file.
 
 if you have node installed, go to command prompt, head to bot folder directory, and run the `node index.js` command.
 
-if it is not working, delete the node modules folder and install the required dependency with the command `npm install discord`
+if it is not working, delete the node modules folder and install the required dependency with the command `npm install discord@11.5.1`
 
 make sure discord.js is v11.5.1, the discord.js v12 support is coming soon.
 
