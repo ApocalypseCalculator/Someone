@@ -64,9 +64,9 @@ client.on('message', msg => {
               webhook.send(msg.content.replace('<@' + client.user.id + '>', '<@!' + randid + '>'));
             }
             addtoLeaderboard(randid);
-            webhook.delete();
             msg.delete(0);
             lastpingerid = msg.author.id;
+            webhook.delete();
           }).catch(error => {
             console.log(error);
             msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
@@ -80,7 +80,7 @@ client.on('message', msg => {
             .setTitle('Permissions Demo')
             .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
             .setTimestamp()
-            .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+            .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
           msg.channel.send(embed);
         }
       })
@@ -96,11 +96,7 @@ client.on('message', msg => {
   else if (msg.content === prefix + 'webhookclear' && msg.member.hasPermission('ADMINISTRATOR')) {
     msg.channel.fetchWebhooks().then(hooks => {
       hooks.forEach(hook => {
-        msg.guild.fetchMembers().then(members => members.forEach(member => {
-          if (member.displayName === hook.name) {
-            hook.delete();
-          }
-        }))
+        hook.delete();
       })
     }).catch(error => {
       console.log(error);
@@ -132,7 +128,7 @@ client.on('message', msg => {
       .addField('Privacy Policy', prefix + 'privacy', true)
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
     msg.channel.send(msgembed);
   }
   else if (msg.content === prefix + 'discordbad') {
@@ -144,7 +140,7 @@ client.on('message', msg => {
       .setAuthor(client.user.username, client.user.avatarURL)
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
     if (msg.mentions.members.size > 1) {
       msg.channel.send('Bro please mention one user you want to check pings for');
     }
@@ -187,7 +183,7 @@ client.on('message', msg => {
       .setDescription('The following are the first 10 people on the leaderboard')
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
     let rawdata = fs.readFileSync('globalLeaderboard.json');
     let parsed = JSON.parse(rawdata);
     let list = parsed.users;
@@ -218,7 +214,7 @@ client.on('message', msg => {
       .addField('Privacy Policy of Someone bot', 'By adding Someone Bot™️ to your server, you agree to having your Discord snowflakes collected by us and retained indefinitely. We collect this data in order to store information on how many times a user has been pinged through this bot. This privacy policy can change without notice, and we encourage you to check it regularly. If you do not agree with this policy, please promptly kick Someone Bot from your server.')
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
     msg.channel.send(msgembed);
   }
   else if (msg.content.startsWith(prefix + 'grank')) {
@@ -233,7 +229,7 @@ client.on('message', msg => {
       .setDescription("Shows your global rank, to show someone else's rank, append a ping to the command")
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Under MIT License", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Under GNU General Public License", client.user.avatarURL);
     if (msg.mentions.members.size > 1) {
       msg.channel.send('Bro please mention one user you want to check pings for');
     }
