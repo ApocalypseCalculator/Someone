@@ -32,3 +32,11 @@ If there are any bugs feel free to contact me through Discord at ApocalypseCalcu
 **You can find a hosted version of this bot at [top.gg](https://top.gg/bot/705135432588853288), please vote for my bot**
 
 ![Demo GIF](https://cdn.discordapp.com/attachments/711369875007995954/711617131866882058/demo2.gif)
+
+
+**Licensing and legal stuff**
+
+I hate legal stuff, you can read the license if you want to. 
+The gist of it is: you may host my bot, but you may not modify my code in any way except for those lines I have given you permission to.
+If you want to modify my bot outside of those lines, you would need to contact me through Discord at ApocalypseCalculator#7096 to gain my approval *before* making any changes.
+If you are to take parts of the code for your own purposes, you must notify me *and* credit me.
