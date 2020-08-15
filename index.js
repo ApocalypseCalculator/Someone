@@ -281,9 +281,10 @@ client.on('message', msg => {
       var randomn = Math.round((amount - 1) * Math.random());
       var faker = members[randomn];
       msg.channel.createWebhook(faker.displayName, faker.user.avatarURL).then(webhook => {
-        console.log(`fake message for ${faker.id} created by ${msg.author.id}`);
         msg.delete(10);
-        webhook.send(targetmsg);
+        webhook.send(targetmsg).then((message) => {
+          console.log(`fake message for ${faker.id} created by ${msg.author.id}. Link suffix is ${message.url.slice('https://discordapp.com/channels/'.length)}`);
+        });
         webhook.delete();
       }).catch(error => {
         console.log(error);
