@@ -118,6 +118,7 @@ client.on('message', msg => {
       .addField('Check Global Rank', prefix + 'grank', true)
       .addField('Troll Command', prefix + 'help', true)
       .addField('Reconnect Count Since Last Reboot', prefix + 'discordbad', true)
+      .addField('Create fake message with random user', `${prefix}fake`, true)
       .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
       .addBlankField()
       .addField('Server Count', client.guilds.size, true)
@@ -256,6 +257,38 @@ client.on('message', msg => {
         msgembed.addField('Ping Count', '<@!' + msg.mentions.users.first().id + '> is not ranked').addBlankField();
         msg.channel.send(msgembed);
       }
+    }
+  }
+  else if (msg.content.startsWith(`${prefix}fake`)) {
+    if (msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone) {
+      msg.reply('Ahem I will not ping in a fake message');
+    }
+    else if(msg.content.split(' ').length <= 1){
+      msg.reply('Yo you need to give me a message');
+    }
+    else {
+      let targetmsg = msg.content.slice(`${prefix}fake`.length);
+      let members = [];
+      var amount = 0;
+      msg.guild.members.forEach((member, key) => {
+        if (!member.user.bot && member != msg.member) {
+          if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
+            members.push(member);
+            amount++;
+          }
+        }
+      })
+      var randomn = Math.round((amount - 1) * Math.random());
+      var faker = members[randomn];
+      msg.channel.createWebhook(faker.displayName, faker.user.avatarURL).then(webhook => {
+        console.log(`fake message for ${faker.id} created by ${msg.author.id}`);
+        msg.delete(10);
+        webhook.send(targetmsg);
+        webhook.delete();
+      }).catch(error => {
+        console.log(error);
+        msg.channel.send('There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+      });
     }
   }
 })
