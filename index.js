@@ -4,8 +4,8 @@ const client = new Discord.Client();
 var lastpingerid = '';
 var reconnectcount = 0;
 
-const token = require('./token'); //you can replace the require(./token) with the token string if you want, or modify the token inside the token.js file
-const prefix = 'someone!'; //you can change the prefix here if you like
+const token = require('./token');
+const prefix = 'someone!'; 
 const creatorid = '492079026089885708'; //you may not change this, or any other parts of the code, without my approval. see README
 
 client.on('ready', () => {
