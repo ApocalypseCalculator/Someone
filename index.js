@@ -5,7 +5,7 @@ var lastpingerid = '';
 var reconnectcount = 0;
 
 const token = require('./token');
-const prefix = 'someone!'; 
+const prefix = 'someone!';
 const creatorid = '492079026089885708'; //you may not change this, or any other parts of the code, without my approval. see README
 
 client.on('ready', () => {
@@ -46,7 +46,7 @@ client.on('message', msg => {
       }
     }
     else {
-      if(!isDisabled(msg.channel.id)){
+      if (!isDisabled(msg.channel.id)) {
         msg.guild.members.fetch(client.user).then(member => {
           if (usercount(msg) <= 5) {
             msg.channel.send("This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled");
@@ -91,7 +91,7 @@ client.on('message', msg => {
           }
         }).catch(error => console.log(error));
       }
-      else{
+      else {
         msg.channel.send('Channel is disabled from @someone :(');
       }
     }
@@ -335,25 +335,30 @@ client.on('message', msg => {
       });
     }
   }
-  else if(msg.content.startsWith(`${prefix}block`)){
-    let raw = fs.readFileSync('./blocked.json');
-    let parsed = JSON.parse(raw);
-    if(msg.mentions.channels.size == 1){
-      if(parsed.blocked.includes(msg.mentions.channels.first().id)){
-        parsed.blocked = removeFromArray(parsed.blocked, msg.mentions.channels.first().id);
-        let newraw = JSON.stringify(parsed);
-        fs.writeFileSync('./blocked.json', newraw);
-        msg.channel.send('Channel re-enabled for @someone pings :D');
+  else if (msg.content.startsWith(`${prefix}block`)) {
+    if (msg.member.hasPermission('ADMINISTRATOR')) {
+      let raw = fs.readFileSync('./blocked.json');
+      let parsed = JSON.parse(raw);
+      if (msg.mentions.channels.size == 1) {
+        if (parsed.blocked.includes(msg.mentions.channels.first().id)) {
+          parsed.blocked = removeFromArray(parsed.blocked, msg.mentions.channels.first().id);
+          let newraw = JSON.stringify(parsed);
+          fs.writeFileSync('./blocked.json', newraw);
+          msg.channel.send('Channel re-enabled for @someone pings :D');
+        }
+        else {
+          parsed.blocked.push(msg.mentions.channels.first().id);
+          let newraw = JSON.stringify(parsed);
+          fs.writeFileSync('./blocked.json', newraw);
+          msg.channel.send('Channel disabled for @someone pings D:');
+        }
       }
-      else{
-        parsed.blocked.push(msg.mentions.channels.first().id);
-        let newraw = JSON.stringify(parsed);
-        fs.writeFileSync('./blocked.json', newraw);
-        msg.channel.send('Channel disabled for @someone pings D:');
+      else {
+        msg.channel.send('Please mention a channel to disable/re-enable');
       }
     }
-    else{
-      msg.channel.send('Please mention a channel to disable/re-enable');
+    else {
+      msg.channel.send('Only admins can use this command >:(');
     }
   }
 })
@@ -413,14 +418,14 @@ function addtoLeaderboard(id) {
 function removeFromArray(arr, target) {
   let newarr = [];
   arr.forEach(e => {
-      if (e != target) {
-          newarr.push(e);
-      }
+    if (e != target) {
+      newarr.push(e);
+    }
   });
   return newarr;
 }
 
-function isDisabled(id){
+function isDisabled(id) {
   let raw = fs.readFileSync('./blocked.json');
   let parsed = JSON.parse(raw);
   return parsed.blocked.includes(id);
