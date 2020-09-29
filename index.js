@@ -25,6 +25,7 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
   client.user.setPresence({
     activity: {
+      type: 'WATCHING',
       name: ` for ${config.prefix}help`
     },
     status: 'online'
