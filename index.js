@@ -9,7 +9,7 @@ var lastpingerid = '';
 var commands = {};
 fs.readdirSync('./commands/').forEach(function (file) {
   let m = require('./commands/' + file);
-  if (m.name == null || m.helpArgs == null || m.helpText == null || m.execute == null || m.verify == null) {
+  if (m.name == null || m.execute == null || m.verify == null) {
     console.error(`\x1b[31mInvalid command: ${file}\x1b[0m`);
   }
   else if (m.name in commands) {
@@ -32,13 +32,15 @@ client.on('ready', () => {
 })
 
 client.on('message', msg => {
+  const args = msg.content.slice(config.prefix.length).trim().split(' ');
+  const command = args.shift().toLowerCase();
   if (msg.author.id === client.user.id || msg.author.bot || msg.channel.type === 'dm') {
     return;
   }
-  else if (msg.mentions.members.has(client.user) && msg.author.id === lastpingerid) {
-    msg.reply('calm down with the pings dude');
+  else if (msg.mentions.members.has(client.user.id) && !base.canPing(msg.author.id)) {
+    msg.reply('calm down with the pings dude. (1 minute cooldown)');
   }
-  else if (msg.mentions.members.has(client.user) && !msg.content.includes("\\<@")) {
+  else if (msg.mentions.members.has(client.user.id) && !msg.content.includes("\\<@")) {
     if (msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
       if (!msg.member.hasPermission('MENTION_EVERYONE')) {
         msg.channel.send("I see what you're doing, and I don't like it");
@@ -73,7 +75,7 @@ client.on('message', msg => {
               }
               base.addtoLeaderboard(randid);
               msg.delete();
-              lastpingerid = msg.author.id;
+              base.usedPing(msg.author.id);
               setTimeout(function () {
                 webhook.delete();
               }, 1000);
@@ -100,10 +102,11 @@ client.on('message', msg => {
       }
     }
   }
-  else if (msg.mentions.users.has(client.user)) {
+  else if (msg.mentions.members.has(client.user.id)) {
     msg.channel.send("I see what you are doing, and I don't like it");
     console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
+  else if(!msg.content.startsWith(config.prefix)) return;
   else if (command in commands && commands[command].verify(msg)) {
     try {
       commands[command].execute(msg, args, client);

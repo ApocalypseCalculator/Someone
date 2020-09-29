@@ -1,3 +1,4 @@
+const fs = require('fs');
 const base = require('../lib/helpermethods');
 
 exports.name = 'block';

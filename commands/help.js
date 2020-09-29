@@ -6,5 +6,5 @@ exports.verify = function (msg) {
 }
 
 exports.execute = function (msg, args, client) {
-    msg.reply(`Do ${config.prefix}info for my information page and \`${config.prefix}commands\` for my commands list`);
+    msg.reply(`Do \`${config.prefix}info\` for my information page and \`${config.prefix}commands\` for my commands list`);
 }

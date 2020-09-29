@@ -17,7 +17,7 @@ exports.execute = function (msg, args, client) {
         .addField("\u200B", "\u200B")
         .addField('Random Ping', 'ping me', true)
         .addField('Ping Command', prefix + 'ping', true)
-        .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
+        .addField('Webhook Clearing Command', prefix + 'whclear', true)
         .addField('Pings Received Counter Command', prefix + 'pingcount', true)
         .addField('Global Ping Leaderboard', prefix + 'gleaderboard', true)
         .addField('Check Global Rank', prefix + 'grank', true)
