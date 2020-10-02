@@ -1,1 +1,1 @@
-module.exports = 'bot token here'
+module.exports = "put token here!";
