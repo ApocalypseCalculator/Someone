@@ -3,7 +3,9 @@
 
 Someone bot for Discord. Brings back Discord's 2018 April Fools joke.
 
-Created by ApocalypseCalculator.
+What this bot basically does is that when you mention it, it will randomly mention some other server member who can see the channel.
+
+Created by ApocalypseCalculator#7096.
 
 To host this bot. You need to have [nodejs](https://nodejs.org/en/) installed.
 
