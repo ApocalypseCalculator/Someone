@@ -107,8 +107,9 @@ client.on('message', msg => {
     msg.channel.send("I see what you are doing, and I don't like it");
     console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
-  else if(!msg.content.startsWith(config.prefix)) return;
-  else if (command in commands && commands[command].verify(msg)) {
+  else if (!msg.content.startsWith(config.prefix)) return;
+  else if (!command in commands) msg.channel.send('Command not found');
+  else if (commands[command].verify(msg)) {
     try {
       commands[command].execute(msg, args, client);
     }
