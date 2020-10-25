@@ -108,7 +108,7 @@ client.on('message', msg => {
     console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
   else if (!msg.content.startsWith(config.prefix)) return;
-  else if (!command in commands) msg.channel.send('Command not found');
+  else if(!commands[command]) msg.channel.send('command not found');
   else if (commands[command].verify(msg)) {
     try {
       commands[command].execute(msg, args, client);
