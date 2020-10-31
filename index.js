@@ -4,7 +4,6 @@ const config = require('./data/config');
 const token = require('./data/token');
 const client = new Discord.Client();
 const base = require('./lib/helpermethods');
-var lastpingerid = '';
 
 var commands = {};
 fs.readdirSync('./commands/').forEach(function (file) {
@@ -53,9 +52,10 @@ client.on('message', msg => {
       }
     }
     else {
+      var usrcount = base.usercount(msg);
       if (!base.isDisabled(msg.channel.id)) {
         msg.guild.members.fetch(client.user).then(member => {
-          if (base.usercount(msg) <= 5) {
+          if (usrcount <= 5) {
             msg.channel.send("This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled");
           }
           else if (msg.member.displayName.includes('clyde')) {
