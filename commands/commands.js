@@ -26,6 +26,7 @@ exports.execute = function (msg, args, client) {
         .addField('Create fake message with random user', `${prefix}fake`, true)
         .addField('Disabled/Re-enabled @someone', prefix + 'block', true)
         .addField('View disabled channels', `${prefix}sblocked`, true)
+        .addField('Pick an amount of random members', `${prefix}random [n]`, true)
         .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
         .addField('Information Page', prefix + 'info', true)
         .addField('This Page', `${prefix}commands (alias ${prefix}cmd)`, true)
