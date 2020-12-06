@@ -28,7 +28,7 @@ client.on('message', msg => {
   }
   else if (msg.content === prefix + 'ping') {
     const message = msg.reply('poooong').then((message) => {
-      message.edit(`Pong! Latency is ${Math.floor(message.createdAt - msg.createdAt)}ms. API Latency is ${Math.round(client.ping)}ms`);
+      message.edit(`Pong! Latency is ${Math.floor(message.createdAt - msg.createdAt)}ms. API Latency is ${Math.round(client.ws.ping)}ms`);
     });
   }
   else if (msg.isMentioned(client.user.id) && msg.author.id === lastpingerid) {
@@ -46,7 +46,7 @@ client.on('message', msg => {
       }
     }
     else {
-      msg.guild.fetchMember(client.user).then(member => {
+      msg.guild.members.fetch(client.user).then(member => {
         if (usercount(msg) == 0) {
           msg.channel.send("Bruh you're the only non-bot guy who can see this channel how you gonna ping someone");
         }
@@ -54,7 +54,7 @@ client.on('message', msg => {
           msg.channel.send("I'm really sorry, but for some reason Discord doesn't allow the name 'clyde' in webhooks. Would be great if you changed your nickname!");
         }
         else if (member.hasPermission('ADMINISTRATOR') || (member.hasPermission('MANAGE_WEBHOOKS') && member.hasPermission('MANAGE_MESSAGES'))) {
-          msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL).then(webhook => {
+          msg.channel.createWebhook(msg.member.displayName, msg.author.avatarURL()).then(webhook => {
             console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
             var randid = getrandomuserid(msg);
             if (msg.content.includes('<@!' + client.user.id + '>')) {
@@ -74,13 +74,13 @@ client.on('message', msg => {
         }
         else {
           msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
-          const embed = new Discord.RichEmbed()
+          const embed = new Discord.MessageEmbed()
             .setColor(13833)
-            .setAuthor(client.user.username, client.user.avatarURL)
+            .setAuthor(client.user.username, client.user.avatarURL())
             .setTitle('Permissions Demo')
             .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
             .setTimestamp()
-            .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+            .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
           msg.channel.send(embed);
         }
       })
@@ -91,7 +91,7 @@ client.on('message', msg => {
     console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
   else if (msg.content === prefix + 'help') {
-    msg.reply('what, you want help? well, thats too bad, no help for you.')
+    msg.reply(`Do ${prefix}info for my information page and ${prefix}commands for my commands list`);
   }
   else if (msg.content === prefix + 'webhookclear' && msg.member.hasPermission('ADMINISTRATOR')) {
     msg.channel.fetchWebhooks().then(hooks => {
@@ -100,48 +100,75 @@ client.on('message', msg => {
       })
     }).catch(error => {
       console.log(error);
-      msg.channel.send('Error on clearing webhooks. Try again or contact <@492079026089885708> if this problem persists');
+      msg.channel.send(`Error on clearing webhooks. Try again or contact the bot creator in the support server if this problem persists (server invite with \`${prefix}info\` command)`);
     });
     msg.channel.send('webhooks cleared');
   }
   else if (msg.content === prefix + 'info') {
-    const msgembed = new Discord.RichEmbed()
+    const msgembed = new Discord.MessageEmbed()
       .setColor(13833)
-      .setAuthor(client.user.username, client.user.avatarURL)
+      .setAuthor(client.user.username, client.user.avatarURL())
       .setTitle('Information About Someone Bot')
       .setDescription("whats up. I am the annoying pinger bot called Someone. Developed by <@" + creatorid + ">. To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot")
-      .addBlankField()
-      .addField('Ping Command', prefix + 'ping', true)
-      .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
-      .addField('Pings Received Counter Command', prefix + 'pingcount', true)
-      .addField('Global Ping Leaderboard', prefix + 'gleaderboard', true)
-      .addField('Check Global Rank', prefix + 'grank', true)
-      .addField('Troll Command', prefix + 'help', true)
-      .addField('Reconnect Count Since Last Reboot', prefix + 'discordbad', true)
-      .addField('Create fake message with random user', `${prefix}fake`, true)
-      .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
       .addBlankField()
       .addField('Server Count', client.guilds.size, true)
       .addField('Bot List Links', '[top.gg](https://top.gg/bot/705135432588853288)', true)
       .addField('Vote Links', '[top.gg](https://top.gg/bot/705135432588853288/vote)', true)
       .addField('Invite Links', '[admin](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot) or [webhooks & msgs](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=536879104&scope=bot)', true)
       .addField('Support Discord Server', '[Someone Support](https://discord.gg/5WmPnYx)', true)
-      .addField('Privacy Policy', prefix + 'privacy', true)
+      .addField('Commands List', prefix + 'commands', true)
+      .addField('This Page', prefix + 'info', true)
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
+    msg.channel.send(msgembed);
+  }
+  else if (msg.content === prefix + 'commands') {
+    const msgembed = new Discord.MessageEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL())
+      .setTitle('Someone Bot Commands')
+      .setDescription(`This is my command list, to see information about me do ${prefix}info.`)
+      .addBlankField()
+      .addField('Random Ping', 'ping me', true)
+      .addField('Ping Command', prefix + 'ping', true)
+      .addField('Webhook Clearing Command', prefix + 'webhookclear', true)
+      .addField('Pings Received Counter Command', prefix + 'pingcount', true)
+      .addField('Global Ping Leaderboard', prefix + 'gleaderboard', true)
+      .addField('Check Global Rank', prefix + 'grank', true)
+      .addField('Help Command', prefix + 'help', true)
+      .addField('Reconnect Count Since Last Reboot', prefix + 'discordbad', true)
+      .addField('Create fake message with random user', `${prefix}fake`, true)
+      .addField('Experimental Ping Contest Command', prefix + 'pingcontest (not available yet)', true)
+      .addField('Information Page', prefix + 'info', true)
+      .addField('This Page', prefix + 'commands', true)
+      .addField('Privacy Policy', prefix + 'privacy', true)
+      .addField('Invite', prefix + 'invite', true)
+      .addBlankField()
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
+    msg.channel.send(msgembed);
+  }
+  else if (msg.content === prefix + 'invite') {
+    const msgembed = new Discord.MessageEmbed()
+      .setColor(13833)
+      .setAuthor(client.user.username, client.user.avatarURL())
+      .setTitle('Invite Me To Your Server!')
+      .addField('Invite Link', '[Click Me!](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot)')
+      .setTimestamp()
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
     msg.channel.send(msgembed);
   }
   else if (msg.content === prefix + 'discordbad') {
     msg.channel.send('Discord API is fucking trash. I had to reconnect ' + reconnectcount + ' times since my last reboot because Discord is fucking stoopid');
   }
   else if (msg.content.startsWith(prefix + 'pingcount')) {
-    const msgembed = new Discord.RichEmbed()
+    const msgembed = new Discord.MessageEmbed()
       .setColor(13833)
-      .setAuthor(client.user.username, client.user.avatarURL)
+      .setAuthor(client.user.username, client.user.avatarURL())
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
     if (msg.mentions.members.size > 1) {
       msg.channel.send('Bro please mention one user you want to check pings for');
     }
@@ -177,14 +204,14 @@ client.on('message', msg => {
     }
   }
   else if (msg.content === prefix + 'gleaderboard') {
-    const msgembed = new Discord.RichEmbed()
+    const msgembed = new Discord.MessageEmbed()
       .setColor(13833)
-      .setAuthor(client.user.username, client.user.avatarURL)
+      .setAuthor(client.user.username, client.user.avatarURL())
       .setTitle('Global Ping Leaderboard')
       .setDescription('The following are the first 10 people on the leaderboard')
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
     let rawdata = fs.readFileSync('globalLeaderboard.json');
     let parsed = JSON.parse(rawdata);
     let list = parsed.users;
@@ -207,15 +234,15 @@ client.on('message', msg => {
     msg.channel.send(msgembed);
   }
   else if (msg.content === prefix + 'privacy') {
-    const msgembed = new Discord.RichEmbed()
+    const msgembed = new Discord.MessageEmbed()
       .setColor(13833)
-      .setAuthor(client.user.username, client.user.avatarURL)
+      .setAuthor(client.user.username, client.user.avatarURL())
       .setTitle('Privacy Policy')
       .addBlankField()
       .addField('Privacy Policy of Someone bot', 'By adding Someone Bot™️ to your server, you agree to having your Discord snowflakes collected by us and retained indefinitely. We collect this data in order to store information on how many times a user has been pinged through this bot. This privacy policy can change without notice, and we encourage you to check it regularly. If you do not agree with this policy, please promptly kick Someone Bot from your server.')
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
     msg.channel.send(msgembed);
   }
   else if (msg.content.startsWith(prefix + 'grank')) {
@@ -223,14 +250,14 @@ client.on('message', msg => {
     let parsed = JSON.parse(rawdata);
     let list = parsed.users;
     list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
-    const msgembed = new Discord.RichEmbed()
+    const msgembed = new Discord.MessageEmbed()
       .setColor(13833)
-      .setAuthor(client.user.username, client.user.avatarURL)
+      .setAuthor(client.user.username, client.user.avatarURL())
       .setTitle('Global Ping Leaderboard Rank Information')
       .setDescription("Shows your global rank, to show someone else's rank, append a ping to the command")
       .addBlankField()
       .setTimestamp()
-      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL);
+      .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
     if (msg.mentions.members.size > 1) {
       msg.channel.send('Bro please mention one user you want to check pings for');
     }
@@ -263,14 +290,14 @@ client.on('message', msg => {
     if (msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone) {
       msg.reply('Ahem I will not ping in a fake message');
     }
-    else if(msg.content.split(' ').length <= 1){
+    else if (msg.content.split(' ').length <= 1) {
       msg.reply('Yo you need to give me a message');
     }
     else {
       let targetmsg = msg.content.slice(`${prefix}fake`.length);
       let members = [];
       var amount = 0;
-      msg.guild.members.forEach((member, key) => {
+      msg.guild.members.cache.forEach((member, key) => {
         if (!member.user.bot && member != msg.member) {
           if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
             members.push(member);
@@ -280,7 +307,7 @@ client.on('message', msg => {
       })
       var randomn = Math.round((amount - 1) * Math.random());
       var faker = members[randomn];
-      msg.channel.createWebhook(faker.displayName, faker.user.avatarURL).then(webhook => {
+      msg.channel.createWebhook(faker.displayName, faker.user.avatarURL()).then(webhook => {
         msg.delete(10);
         webhook.send(targetmsg).then((message) => {
           console.log(`fake message for ${faker.id} created by ${msg.author.id}. Link suffix is ${message.url.slice('https://discordapp.com/channels/'.length)}`);
@@ -298,7 +325,7 @@ function getrandomuserid(msg) {
   var server = msg.guild;
   let members = [];
   var amount = 0;
-  server.members.forEach((member, key) => {
+  server.members.cache.forEach((member, key) => {
     if (!member.user.bot && member != msg.member) {
       if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
         members.push(key);
@@ -316,7 +343,7 @@ function usercount(msg) {
   var server = msg.guild;
   let members = [];
   var amount = 0;
-  server.members.forEach((member, key) => {
+  server.members.cache.forEach((member, key) => {
     if (!member.user.bot && member != msg.member) {
       if (msg.channel.permissionsFor(member).has('READ_MESSAGES')) {
         members.push(key);
