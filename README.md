@@ -3,7 +3,7 @@
 
 Someone bot for Discord. Brings back Discord's 2018 April Fools joke.
 
-What this bot basically does is that when you mention it, it will randomly mention some other server member who can see the channel.
+What this bot basically does is that when you mention it, it will randomly mention some other server member who can see the channel. It also has a lot of other commands you can get by doing `someone!help`
 
 Created by ApocalypseCalculator#7096.
 
@@ -13,9 +13,9 @@ Clone this repository onto your pc. In the bot folder `data`, open the file call
 
 Inside the token.js file, put your bot token inside the `""`. save the file.
 
-before running, make sure you installed the discord.js module. you can do this with `npm install discord.js`  (npm should come with node, if it does not, seperately install npm)
+before running, make sure you installed the required dependencies by doing `npm install`  (npm should come with node, if it does not, seperately install npm)
 
-if you have node installed, go to your terminal, head to bot folder directory (`cd filepath`), and run the `node index.js` command. (make sure node is v12 or higher)
+if you have node installed, go to your terminal, head to bot folder directory (`cd filepath`), and run the `node .` command.
 
 Bot has been upgraded to comply with the newest Discord.js v12
 
