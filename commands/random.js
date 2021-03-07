@@ -36,7 +36,7 @@ exports.execute = function (msg, args, client) {
                 else {
                     const msgembed = new Discord.MessageEmbed()
                         .setColor(13833)
-                        .addField(`Here ${(parseInt(args[0] == 1) ? 'is' : 'are')} your ${args[0]} random member${(parseInt(args[0]) == 1) ? '' : 's'}`, list)
+                        .addField(`Here ${(parseInt(args[0]) == 1 ? 'is' : 'are')} your ${args[0]} random member${(parseInt(args[0]) == 1) ? '' : 's'}`, list)
                         .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
                     msg.channel.send(msgembed);
                 }
