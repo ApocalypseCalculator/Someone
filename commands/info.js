@@ -21,7 +21,7 @@ exports.execute = function (msg, args, client) {
       .addField('Server Count', client.guilds.cache.size, true)
       .addField('Bot List Links', '[top.gg](https://top.gg/bot/705135432588853288)', true)
       .addField('Vote Links', '[top.gg](https://top.gg/bot/705135432588853288/vote)', true)
-      .addField('Invite Links', '[Click Here!](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot)', true)
+      .addField('Invite Links', '[Click Here!](https://discord.com/api/oauth2/authorize?client_id=705135432588853288&permissions=8&scope=bot%20applications.commands)', true)
       .addField('Support Discord Server', '[Someone Support](https://discord.gg/5WmPnYx)', true)
       .addField('GitHub Repository', `[ApocalypseCalculator/Someone](https://github.com/ApocalypseCalculator/Someone)`, true)
       .addField('Commands List', config.prefix + 'commands', true)
