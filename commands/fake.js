@@ -6,7 +6,7 @@ exports.verify = function (msg) {
 }
 
 exports.execute = function (msg, args, client) {
-    if (msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone || /@everyone/.test(msg.content)) {
+    if (msg.mentions.users.size > 0 || msg.mentions.roles.size > 0 || msg.mentions.everyone || /@everyone/.test(msg.content) || /<@!?&[0,9]{18}>/.test(msg.content)) {
         msg.reply('Ahem I will not ping in a fake message');
     }
     else if (msg.content.split(' ').length <= 1) {
