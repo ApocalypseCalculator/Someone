@@ -135,7 +135,7 @@ client.on('message', msg => {
         parsed.push(newobj);
         let newraw = JSON.stringify(parsed);
         fs.writeFileSync('./data/err.json', newraw);
-        msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help.`);
+        msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`${config.prefix}info\` for invite).`);
       }
       catch (err) {
         console.log(err);
