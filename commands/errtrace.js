@@ -18,4 +18,7 @@ exports.execute = function (msg, args, client) {
             msg.channel.send(`\`\`\`Error: ${errs[0].err}\nID: ${errs[0].id}\nTime: ${new Date(errs[0].time).toUTCString()}\nServer: ${errs[0].server}\nUser: ${errs[0].user}\nCommand: ${errs[0].command}\`\`\``);
         }
     }
+    else {
+        msg.channel.send('Please provide ID');
+    }
 }
