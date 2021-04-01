@@ -19,5 +19,8 @@
   "homepage": "https://github.com/ApocalypseCalculator/Someone/blob/master/README.md",
   "dependencies": {
     "discord.js": "^12.5.1"
+  },
+  "optionalDependencies": {
+    "systeminformation": "5.6.10"
   }
 }
