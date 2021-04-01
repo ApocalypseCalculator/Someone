@@ -13,15 +13,15 @@ exports.execute = function (msg, args, client) {
         .setColor(13833)
     let blcked = "";
     msg.guild.channels.cache.forEach(chnl => {
-        if(parsed.blocked.includes(chnl.id)){
+        if (parsed.blocked.includes(chnl.id)) {
             blcked += `<#${chnl.id}> `
         }
     });
-    if(blcked.length > 1900){
+    if (blcked.length > 1900) {
         msg.channel.send('Oof you have too many channels blocked in this server');
     }
-    else{
-        embed.addField('Blocked channels in this server', blcked);
+    else {
+        embed.addField('Blocked channels in this server', (blcked === "") ? "No blocked channels" : blcked);
         msg.channel.send(embed);
     }
 }
