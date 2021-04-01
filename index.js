@@ -119,8 +119,28 @@ client.on('message', msg => {
     try {
       commands[command].execute(msg, args, client);
     }
-    catch {
-      msg.channel.send('Fatal error occurred');
+    catch (err) {
+      try {
+        let raw = fs.readFileSync('./data/err.json');
+        let parsed = JSON.parse(raw);
+        let errid = Buffer.from(`${Math.random().toString(36).substring(7)}-${Date.now()}`).toString('base64');
+        let newobj = {
+          err: `${err}`,
+          id: `${errid}`,
+          time: Date.now(),
+          server: msg.guild.id,
+          user: msg.author.id,
+          command: `${msg.content}`
+        }
+        parsed.push(newobj);
+        let newraw = JSON.stringify(parsed);
+        fs.writeFileSync('./data/err.json', newraw);
+        msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help.`);
+      }
+      catch (err) {
+        console.log(err);
+        msg.channel.send('Fatal error occurred');
+      }
     }
   }
   else {
