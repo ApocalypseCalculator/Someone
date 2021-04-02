@@ -11,7 +11,7 @@ exports.execute = function (msg, args, client) {
         .setAuthor(client.user.username, client.user.avatarURL())
         .setTitle('Privacy Policy')
         .addField("\u200B", "\u200B")
-        .addField('Privacy Policy of Someone bot', 'By adding Someone Bot™️ to your server, you agree to having your Discord snowflakes collected by us and retained indefinitely. We collect this data in order to store information on how many times a user has been pinged through this bot. This privacy policy can change without notice, and we encourage you to check it regularly. If you do not agree with this policy, please promptly kick Someone Bot from your server.')
+        .addField('Privacy Policy of Someone bot', 'By adding Someone Bot™️ to your server, you agree to having your Discord snowflakes collected by us and retained indefinitely. We collect this data in order to store information on how many times a user has been pinged through this bot. Messages that cause fatal errors will have their date, content, server/user snowflake collected and retained indefinitely to patch bugs and issues. You may request your data to be deleted any time by submitting a request in the support server. This privacy policy can change without notice, and we encourage you to check it regularly. If you do not agree with this policy, please promptly kick Someone Bot from your server.')
         .addField("\u200B", "\u200B")
         .setTimestamp()
         .setFooter("Someone Bot By ApocalypseCalculator - Licensed", client.user.avatarURL());
