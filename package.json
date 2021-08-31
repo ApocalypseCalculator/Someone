@@ -1,5 +1,5 @@
 {
-  "name": "Someone",
+  "name": "someone",
   "version": "2.3.1",
   "description": "Someone bot for Discord. Brings back Discord's 2018 April Fools joke.",
   "main": "index.js",
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/ApocalypseCalculator/Someone/blob/master/README.md",
   "dependencies": {
-    "discord.js": "^12.5.1"
+    "discord.js": "^13.1.0"
   },
   "optionalDependencies": {
     "systeminformation": "5.6.10"
