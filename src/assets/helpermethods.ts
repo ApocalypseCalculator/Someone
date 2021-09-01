@@ -70,7 +70,7 @@ export function addToLeaderboard(id: Snowflake) {
 /**
  * Remember to add types here later.
  */
-export function isDisabled(id: Snowflake) {
+export function isDisabled(id: Snowflake): boolean {
     const raw = fs.readFileSync('../data/blocked.json', { encoding: 'utf-8' });
     const parsed = JSON.parse(raw);
 
@@ -117,7 +117,7 @@ export function usedPing(id: Snowflake) {
     fs.writeFileSync('./data/pingtime.json', newData);
 }
 
-export function getElementByProperty<T>(array: T[], targetID: string, targetValue: T) {
+export function getElementByProperty<T>(array: T[], targetID: T, targetValue: T) {
     for(let i = 0; i < array.length; i++) {
         // @ts-ignore
         if(array[i][targetID] === targetValue) {
