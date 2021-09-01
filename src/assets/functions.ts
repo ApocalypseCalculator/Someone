@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { config } from '../data/config';
 import { Message, Snowflake } from 'discord.js';
+import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
 export function getRandomUserID(msg: Message) {
     const server = msg.guild;
@@ -43,17 +44,14 @@ export function userCount(msg: Message) {
     });
 }
 
-/**
- * Remember to add types here later.
- */
 export function addToLeaderboard(id: Snowflake) {
     const rawData = fs.readFileSync('../data/globalLeaderboard.json', { encoding: 'utf-8' });
-    const parsed = JSON.parse(rawData);
-    const botUser = (element) => element.discordID === id;
+    const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);
+    const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === id;
 
     const index = parsed.users.findIndex(botUser);
-    if(index == -1) {
-        const newUserData = {
+    if(index === -1) {
+        const newUserData: GlobalLeaderboardUserStats = {
             discordID: id,
             pinged: 1,
         };
@@ -67,25 +65,19 @@ export function addToLeaderboard(id: Snowflake) {
     fs.writeFileSync('../data/globalLeaderboard.json', newUserData);
 }
 
-/**
- * Remember to add types here later.
- */
-export function isDisabled(id: Snowflake): boolean {
-    const raw = fs.readFileSync('../data/blocked.json', { encoding: 'utf-8' });
-    const parsed = JSON.parse(raw);
+export function isDisabled(id: Snowflake) {
+    const rawData = fs.readFileSync('../data/blocked.json', { encoding: 'utf-8' });
+    const parsed: BlockedChannelData = JSON.parse(rawData);
 
     return parsed.blocked.includes(id);
 }
 
-/**
- * Remember to add types here later.
- */
 export function canPing(id: Snowflake) {
-    const raw = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
-    const parsed = JSON.parse(raw);
+    const rawData = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
+    const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
-    if(index == -1) {
+    if(index === -1) {
         return true;
     } else if(parsed.users[index].lastping > Date.now() - config.pingcooldown) {
         return false;
@@ -98,29 +90,29 @@ export function canPing(id: Snowflake) {
  * Remember to add types here later.
  */
 export function usedPing(id: Snowflake) {
-    const raw = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
-    const parsed = JSON.parse(raw);
+    const rawData = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
+    const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
-    if(index == -1) {
-        const newObj = {
+    if(index === -1) {
+        const newUserData: PingCooldownUserStats = {
             discordID: id,
             lastping: Date.now(),
         };
 
-        parsed.users.push(newObj);
+        parsed.users.push(newUserData);
     } else {
         parsed.users[index].lastping = Date.now();
     }
 
     const newData = JSON.stringify(parsed);
-    fs.writeFileSync('./data/pingtime.json', newData);
+    fs.writeFileSync('../data/pingtime.json', newData);
 }
 
-export function getElementByProperty<T>(array: T[], targetID: T, targetValue: T) {
+export function getElementByProperty<T>(array: T[], targetID: string, targetValue: string) {
     for(let i = 0; i < array.length; i++) {
         // @ts-ignore
-        if(array[i][targetID] === targetValue) {
+        if(array[i][targetID] === targetValue) { // remember to find a way to fix this, ts might not like it
             return i;
         }
     }
