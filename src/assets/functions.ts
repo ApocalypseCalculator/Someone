@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { config } from '../data/config';
+import { config } from './config';
 import { Message, Snowflake } from 'discord.js';
 import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
@@ -9,7 +9,7 @@ export function getRandomUserID(msg: Message) {
     let amount = 0;
 
     server?.members.cache.forEach((member, key) => {
-        if(!member.user.bot && member != msg.member) {
+        if(!member.user.bot && member !== msg.member) {
             if(msg.channel.type !== 'DM' && msg.channel.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
                 members.push(key);
                 amount++;
@@ -86,9 +86,6 @@ export function canPing(id: Snowflake) {
     }
 }
 
-/**
- * Remember to add types here later.
- */
 export function usedPing(id: Snowflake) {
     const rawData = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
@@ -129,4 +126,20 @@ export function removeFromArray<T>(array: T[], target: T) {
     });
 
     return newArray;
+}
+
+export function formatTime(num: number) {
+    let left = num;
+
+    const days = Math.floor(num / (60 * 60.0 * 24));
+    left -= (days * 60 * 60 * 24);
+
+    const hours = Math.floor(left / (60 * 60.0));
+    left -= (hours * 60 * 60);
+
+    const minutes = Math.floor(left / 60.0);
+    left -= (minutes * 60);
+
+    const str = `${days} days, ${hours} hours, ${minutes} minutes, ${left} seconds`;
+    return str;
 }
