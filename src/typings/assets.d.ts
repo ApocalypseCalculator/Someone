@@ -21,3 +21,12 @@ export interface PingCooldownUserStats {
 export interface GlobalPingCooldownTotalData {
     users: PingCooldownUserStats[];
 }
+
+export interface BotError {
+    err: string;
+    id: string;
+    time: number;
+    server: Snowflake;
+    user: Snowflake;
+    command: string;
+}
