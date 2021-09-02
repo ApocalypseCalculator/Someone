@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { Client, Collection } from 'discord.js';
 import { token } from './assets/token';
 import { Command, SlashCommand } from './typings/bot';
@@ -19,8 +20,8 @@ export class Someone extends Client {
 
 const client = new Someone();
 
-fs.readdirSync('./commands/').forEach((file) => {
-    const command: Command = require(`./commands/${file}`);
+fs.readdirSync(path.join(process.cwd(), 'src', 'commands')).forEach((file) => {
+    const command: Command = require(path.join(process.cwd(), 'src', 'commands', `${file}`));
     if (command.name == null || command.execute == null) {
         console.error(`\x1b[31mInvalid command: ${file}\x1b[0m`);
     } else if (command.name in client.commands) {
