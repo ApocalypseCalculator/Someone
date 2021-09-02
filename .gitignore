@@ -1,3 +1,4 @@
-node_modules
-# data (remember to add this back once you finish refactoring the data folder
+node_modules/
+data/
 Someone.code-workspace
+package-lock.json
