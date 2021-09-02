@@ -1,24 +1,24 @@
 import fs from 'fs';
-import { Message, TextChannel, MessageEmbed } from 'discord.js';
+import { Message, TextChannel, MessageEmbed, ClientUser } from 'discord.js';
 import { config } from '../assets/config';
 import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, usedPing } from '../assets/functions';
 import { EventHandler } from '../typings/bot';
 import { BotError } from '../typings/assets';
+import { Someone } from '..';
 
 export = {
     name: 'messageCreate',
     callback: async (msg: Message) => {
+        const self = this as unknown as Someone;
+
         const args = msg.content.slice(config.prefix.length).trim().split(' ');
         const command = args.shift()?.toLowerCase();
 
-        // @ts-ignore
-        if(msg.author.id === this.user.id || msg.author.bot || msg.channel.type === 'DM') {
+        if(msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === 'DM') {
             return;
-            // @ts-ignore
-        } else if(msg.mentions.members?.has(this.user.id) && !canPing(msg.author.id)) {
+        } else if(msg.mentions.members?.has(self.user?.id as string) && !canPing(msg.author.id)) {
             msg.reply('calm down with the pings dude. (1 minute cooldown)');
-            // @ts-ignore
-        } else if(msg.mentions.members?.has(this.user.id) && !msg.content.includes('\\<@')) {
+        } else if(msg.mentions.members?.has(self.user?.id as string) && !msg.content.includes('\\<@')) {
             if(msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
                 if(!msg.member?.permissions.has('MENTION_EVERYONE')) {
                     msg.channel.send('I see what you\'re doing, and I don\'t like it');
@@ -34,8 +34,7 @@ export = {
             } else {
                 const usrcount = await userCount(msg);
                 if(!isDisabled(msg.channel.id)) {
-                    // @ts-ignore
-                    msg.guild?.members.fetch(this.user).then((member) => {
+                    msg.guild?.members.fetch(self.user as ClientUser).then((member) => {
                         if(!usrcount || usrcount <= 5) {
                             msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
                         } else if(msg.member?.displayName.includes('clyde')) {
@@ -46,19 +45,15 @@ export = {
                                 reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`,
                             }).then(webhook => {
                                 if(config.logging) {
-                                    // @ts-ignore
-                                    console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${this.user.id}>`, '(bot ping)')}`);
+                                    console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                                 }
 
                                 const randID = getRandomUserID(msg);
 
-                                // @ts-ignore
-                                if(msg.content.includes(`<@!${this.user.id}>`)) {
-                                    // @ts-ignore
-                                    webhook.send(msg.content.replace(`<@!${this.user.id}>`, `<@!${randID}>`));
+                                if(msg.content.includes(`<@!${self.user?.id}>`)) {
+                                    webhook.send(msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`));
                                 } else {
-                                    // @ts-ignore
-                                    webhook.send(msg.content.replace(`<@${this.user.id}>`, `<@!${randID}>`));
+                                    webhook.send(msg.content.replace(`<@${self.user?.id}>`, `<@!${randID}>`));
                                 }
 
                                 addToLeaderboard(randID);
@@ -78,13 +73,11 @@ export = {
                             msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
                             const embed = new MessageEmbed()
                                 .setColor(13833)
-                                // @ts-ignore
-                                .setAuthor(this.user.username, this.user.avatarURL())
+                                .setAuthor((self.user as ClientUser).username, (self.user as ClientUser).avatarURL() as string)
                                 .setTitle('Permissions Demo')
                                 .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
                                 .setTimestamp()
-                                // @ts-ignore
-                                .setFooter('Someone Bot By ApocalypseCalculator - Licensed', this.user.avatarURL());
+                                .setFooter('Someone Bot By ApocalypseCalculator - Licensed', (self.user as ClientUser).avatarURL() as string);
 
                             msg.channel.send({ embeds: [embed] });
                         }
@@ -95,26 +88,22 @@ export = {
                     msg.channel.send('Channel is disabled from @someone :(');
                 }
             }
-            // @ts-ignore
-        } else if(msg.mentions.members?.has(this.user.id)) {
+        } else if(msg.mentions.members?.has(self.user?.id as string)) {
             msg.channel.send('I see what you are doing, and I don\'t like it');
             console.log(`${msg.author.username}\t(failed ping)\t: ${msg.content}`);
         } else if(!msg.content.startsWith(config.prefix)) {
             return;
-            // @ts-ignore
-        } else if(!this.commands.get(command)) {
+        } else if(!self.commands.get(command as string)) {
             msg.channel.send('command not found');
-            // @ts-ignore
-        } else if(this.commands.get(command).verify(msg)) {
+        } else if(self.commands.get(command as string)?.verify(msg)) {
             try {
-                // @ts-ignore
-                this.commands.get(command).execute(msg, args, this);
+                self.commands.get(command as string)?.execute(msg, args, self);
             } catch(err) {
                 try {
                     const raw = fs.readFileSync('../data/err.json', { encoding: 'utf-8' });
                     const parsed: BotError[] = JSON.parse(raw);
                     const errid = Buffer.from(`${Math.random().toString(36).substring(7)}-${Date.now()}`).toString('base64');
-                    const newobj = {
+                    const newobj: BotError = {
                         err: `${err}`,
                         id: `${errid}`,
                         time: Date.now(),
