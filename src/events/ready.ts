@@ -7,7 +7,7 @@ export = {
     callback: () => {
         const self = this as unknown as Someone;
 
-        console.log(`Logged in as ${self.user?.tag}!`);
+        console.log('Connected to Discord!');
 
         self.user?.setPresence({
             activities: [{

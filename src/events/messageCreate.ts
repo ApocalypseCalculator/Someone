@@ -12,45 +12,66 @@ export = {
         const self = this as unknown as Someone;
 
         const args = msg.content.slice(config.prefix.length).trim().split(' ');
-        const command = args.shift()?.toLowerCase();
+        const commandName = args.shift()?.toLowerCase();
+        if(!commandName || commandName.length === 0) {
+            return;
+        }
+
+        const command = self.commands.get(commandName);
+        if(!command) {
+            return msg.channel.send('command not found');
+        }
 
         if(msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === 'DM') {
             return;
-        } else if(msg.mentions.members?.has(self.user?.id as string) && !canPing(msg.author.id)) {
-            msg.reply('calm down with the pings dude. (1 minute cooldown)');
-        } else if(msg.mentions.members?.has(self.user?.id as string) && !msg.content.includes('\\<@')) {
+        }
+
+        if(msg.mentions.members?.has(self.user?.id as string) && !canPing(msg.author.id)) {
+            return msg.reply('calm down with the pings dude. (1 minute cooldown)');
+        }
+
+        if(msg.mentions.members?.has(self.user?.id as string) && !msg.content.includes('\\<@')) {
             if(msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
                 if(!msg.member?.permissions.has('MENTION_EVERYONE')) {
                     msg.channel.send('I see what you\'re doing, and I don\'t like it');
                     if(config.logging) {
-                        console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
+                        return console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
+                    } else {
+                        return;
                     }
                 } else {
                     msg.channel.send('I\'m going to give everyone 1 less ping by not repeating that with a Someone ping. tyvm');
                     if(config.logging) {
-                        console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
+                        return console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
+                    } else {
+                        return;
                     }
                 }
             } else {
                 const usrcount = await userCount(msg);
                 if(!isDisabled(msg.channel.id)) {
-                    msg.guild?.members.fetch(self.user as ClientUser).then((member) => {
+                    return msg.guild?.members.fetch(self.user as ClientUser).then(async (member) => {
                         if(!usrcount || usrcount <= 5) {
-                            msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
-                        } else if(msg.member?.displayName.includes('clyde')) {
-                            msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
-                        } else if(member.permissions.has('ADMINISTRATOR') || (member.permissions.has('MANAGE_WEBHOOKS') && member.permissions.has('MANAGE_MESSAGES'))) {
-                            (msg.channel as TextChannel).createWebhook(msg.member?.displayName as string, {
-                                avatar: msg.author.avatarURL() || 'https://cdn.discordapp.com/attachments/793653928159608843/882819198907215892/upload.jpg',
-                                reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`,
-                            }).then(webhook => {
+                            return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
+                        }
+
+                        if(msg.member?.displayName.includes('clyde')) {
+                            return msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
+                        }
+
+                        if(member.permissions.has('ADMINISTRATOR') || (member.permissions.has('MANAGE_WEBHOOKS') && member.permissions.has('MANAGE_MESSAGES'))) {
+                            try {
+                                const webhook = await (msg.channel as TextChannel).createWebhook(msg.member?.displayName as string, {
+                                    avatar: msg.author.avatarURL() || 'https://cdn.discordapp.com/attachments/793653928159608843/882819198907215892/upload.jpg',
+                                    reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`,
+                                });
                                 if(config.logging) {
                                     console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                                 }
 
                                 const randID = getRandomUserID(msg);
 
-                                if(msg.content.includes(`<@!${self.user?.id}>`)) {
+                                if (msg.content.includes(`<@!${self.user?.id}>`)) {
                                     webhook.send(msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`));
                                 } else {
                                     webhook.send(msg.content.replace(`<@${self.user?.id}>`, `<@!${randID}>`));
@@ -62,13 +83,13 @@ export = {
 
                                 usedPing(msg.author.id);
 
-                                setTimeout(() => {
+                                return setTimeout(() => {
                                     webhook.delete();
                                 }, 1000);
-                            }).catch(error => {
+                            } catch(error) {
                                 console.log(error);
-                                msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
-                            });
+                                return msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+                            }
                         } else {
                             msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
                             const embed = new MessageEmbed()
@@ -79,25 +100,29 @@ export = {
                                 .setTimestamp()
                                 .setFooter('Someone Bot By ApocalypseCalculator - Licensed', (self.user as ClientUser).avatarURL() as string);
 
-                            msg.channel.send({ embeds: [embed] });
+                            return msg.channel.send({ embeds: [embed] });
                         }
                     }).catch(error => {
-                        console.log(error);
+                        return console.log(error);
                     });
                 } else {
-                    msg.channel.send('Channel is disabled from @someone :(');
+                    return msg.channel.send('Channel is disabled from @someone :(');
                 }
             }
-        } else if(msg.mentions.members?.has(self.user?.id as string)) {
+        }
+
+        if(msg.mentions.members?.has(self.user?.id as string)) {
             msg.channel.send('I see what you are doing, and I don\'t like it');
-            console.log(`${msg.author.username}\t(failed ping)\t: ${msg.content}`);
-        } else if(!msg.content.startsWith(config.prefix)) {
+            return console.log(`${msg.author.username}\t(failed ping)\t: ${msg.content}`);
+        }
+
+        if(!msg.content.startsWith(config.prefix)) {
             return;
-        } else if(!self.commands.get(command as string)) {
-            msg.channel.send('command not found');
-        } else if(self.commands.get(command as string)?.verify(msg)) {
+        }
+
+        if(command.verify(msg)) {
             try {
-                self.commands.get(command as string)?.execute(msg, args, self);
+                return await command.execute(msg, args, self);
             } catch(err) {
                 try {
                     const raw = fs.readFileSync('../data/err.json', { encoding: 'utf-8' });
@@ -116,14 +141,14 @@ export = {
                     const newraw = JSON.stringify(parsed);
 
                     fs.writeFileSync('../data/err.json', newraw);
-                    msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`${config.prefix}info\` for invite).`);
+                    return msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`${config.prefix}info\` for invite).`);
                 } catch(err) {
                     console.log(err);
-                    msg.channel.send('Fatal error occurred');
+                    return msg.channel.send('Fatal error occurred');
                 }
             }
         } else {
-            msg.channel.send('You do not have permission to use this command');
+            return msg.channel.send('You do not have permission to use this command');
         }
     },
 } as EventHandler;
