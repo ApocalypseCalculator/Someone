@@ -1,13 +1,15 @@
 import { EventHandler } from '../typings/bot';
 import { config } from '../assets/config';
+import { Someone } from '..';
 
 export = {
     name: 'ready',
     callback: () => {
-        // @ts-ignore
-        console.log(`Logged in as ${this.user.tag}!`);
-        // @ts-ignore
-        this.user.setPresence({
+        const self = this as unknown as Someone;
+
+        console.log(`Logged in as ${self.user?.tag}!`);
+
+        self.user?.setPresence({
             activities: [{
                 type: 'WATCHING',
                 name: ` for ${config.prefix}help`,
