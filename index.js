@@ -44,11 +44,15 @@ client.on('message', msg => {
     if (msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
       if (!msg.member.hasPermission('MENTION_EVERYONE')) {
         msg.channel.send("I see what you're doing, and I don't like it");
-        console.log('attempted ping by: ' + msg.author.username + '\tcontent:\t' + msg.content);
+        if (config.logging) {
+          console.log('attempted ping by: ' + msg.author.username + '\tcontent:\t' + msg.content);
+        }
       }
       else {
         msg.channel.send("I'm going to give everyone 1 less ping by not repeating that with a Someone ping. tyvm");
-        console.log('attempted ping by: ' + msg.author.username + '\tcontent:\t' + msg.content);
+        if (config.logging) {
+          console.log('attempted ping by: ' + msg.author.username + '\tcontent:\t' + msg.content);
+        }
       }
     }
     else {
@@ -66,7 +70,9 @@ client.on('message', msg => {
               avatar: msg.author.avatarURL(),
               reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`
             }).then(webhook => {
-              console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
+              if (config.logging) {
+                console.log('pinger: ' + msg.author.username + '(' + msg.author.id + ')\t content: ' + msg.content.replace('<@!' + client.user.id + '>', '(botping)'));
+              }
               var randid = base.getrandomuserid(msg);
               if (msg.content.includes('<@!' + client.user.id + '>')) {
                 webhook.send(msg.content.replace('<@!' + client.user.id + '>', '<@!' + randid + '>'));
@@ -108,13 +114,33 @@ client.on('message', msg => {
     console.log(msg.author.username + '\t(failed ping)\t: ' + msg.content);
   }
   else if (!msg.content.startsWith(config.prefix)) return;
-  else if(!commands[command]) msg.channel.send('command not found');
+  else if (!commands[command]) msg.channel.send('command not found');
   else if (commands[command].verify(msg)) {
     try {
       commands[command].execute(msg, args, client);
     }
-    catch {
-      msg.channel.send('Fatal error occurred');
+    catch (err) {
+      try {
+        let raw = fs.readFileSync('./data/err.json');
+        let parsed = JSON.parse(raw);
+        let errid = Buffer.from(`${Math.random().toString(36).substring(7)}-${Date.now()}`).toString('base64');
+        let newobj = {
+          err: `${err}`,
+          id: `${errid}`,
+          time: Date.now(),
+          server: msg.guild.id,
+          user: msg.author.id,
+          command: `${msg.content}`
+        }
+        parsed.push(newobj);
+        let newraw = JSON.stringify(parsed);
+        fs.writeFileSync('./data/err.json', newraw);
+        msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`${config.prefix}info\` for invite).`);
+      }
+      catch (err) {
+        console.log(err);
+        msg.channel.send('Fatal error occurred');
+      }
     }
   }
   else {
