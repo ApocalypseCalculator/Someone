@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import { PermissionResolvable, RoleResolvable, Message, ClientEvents, CommandInteraction, CommandInteractionOption, User } from 'discord.js';
+import { Message, ClientEvents, CommandInteraction, CommandInteractionOption } from 'discord.js';
 import { Someone } from '..';
 
 export interface Command {
