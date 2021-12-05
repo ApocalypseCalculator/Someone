@@ -20,7 +20,8 @@ export class Someone extends Client {
 
 const client = new Someone();
 
-fs.readdirSync(path.join(process.cwd(), 'src', 'commands')).forEach((file) => {
+const commandFiles = fs.readdirSync(path.join(process.cwd(), 'src', 'commands')).filter((file) => file.endsWith('.ts'));
+for(const file of commandFiles) {
     const command: Command = require(path.join(process.cwd(), 'src', 'commands', `${file}`));
     if(!command.name || !command.execute) {
         console.error(`\x1b[31mInvalid command: ${file}\x1b[0m`);
@@ -30,7 +31,7 @@ fs.readdirSync(path.join(process.cwd(), 'src', 'commands')).forEach((file) => {
         client.commands.set(command.name, command);
         console.log(`Loaded command: ${file} (${command.name})`);
     }
-});
+}
 
 const events = fs.readdirSync(path.join(process.cwd(), 'src', 'events'));
 function loadEvents() {
