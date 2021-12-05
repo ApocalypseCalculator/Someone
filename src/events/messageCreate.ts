@@ -8,19 +8,8 @@ import { Someone } from '..';
 
 export = {
     name: 'messageCreate',
-    callback: async (msg: Message) => {
+    async callback(msg: Message) {
         const self = this as unknown as Someone;
-
-        const args = msg.content.slice(config.prefix.length).trim().split(' ');
-        const commandName = args.shift()?.toLowerCase();
-        if(!commandName || commandName.length === 0) {
-            return;
-        }
-
-        const command = self.commands.get(commandName);
-        if(!command) {
-            return msg.channel.send('command not found');
-        }
 
         if(msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === 'DM') {
             return;
@@ -69,7 +58,7 @@ export = {
                                     console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                                 }
 
-                                const randID = getRandomUserID(msg);
+                                const randID = await getRandomUserID(msg);
 
                                 if (msg.content.includes(`<@!${self.user?.id}>`)) {
                                     webhook.send(msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`));
@@ -118,6 +107,17 @@ export = {
 
         if(!msg.content.startsWith(config.prefix)) {
             return;
+        }
+
+        const args = msg.content.slice(config.prefix.length).trim().split(' ');
+        const commandName = args.shift()?.toLowerCase();
+        if(!commandName || commandName.length === 0) {
+            return;
+        }
+
+        const command = self?.commands?.get(commandName);
+        if(!command) {
+            return msg.channel.send('command not found');
         }
 
         if(command.verify(msg)) {

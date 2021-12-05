@@ -4,7 +4,7 @@ import { Someone } from '..';
 
 export = {
     name: 'ready',
-    callback: () => {
+    callback() {
         const self = this as unknown as Someone;
 
         console.log('Connected to Discord!');
