@@ -15,19 +15,19 @@ export = {
             return msg.reply('Yo you need to give me a message');
         } else {
             const targetmsg = msg.content.slice(`${config.prefix}fake`.length);
-            const fakemember = getRandomUserID(msg);
+            const fakemember = await getRandomUserID(msg);
             const faker = msg.guild!.members.cache.get(fakemember);
 
             try {
-                const webhook = await (msg.channel as TextChannel).createWebhook((faker as GuildMember).displayName, {
-                    avatar: (faker as GuildMember).user.avatarURL() as string,
+                const webhook = await (msg.channel as TextChannel).createWebhook((faker as GuildMember)?.displayName ?? 'No name', {
+                    avatar: (faker as GuildMember)?.user.avatarURL() as string,
                     reason: `Fake message requested by ${msg.author.tag} (${msg.author.id})`,
                 });
 
                 msg.delete();
 
                 webhook.send(targetmsg).then((message) => {
-                    console.log(`fake message for ${(faker as GuildMember).id} created by ${msg.author.id}. Link suffix is ${(message as Message).url.slice('https://discordapp.com/channels/'.length)}`);
+                    console.log(`fake message for ${(faker as GuildMember)?.id} created by ${msg.author.id}. Link suffix is ${(message as Message).url.slice('https://discordapp.com/channels/'.length)}`);
                 });
 
                 return setTimeout(() => {
