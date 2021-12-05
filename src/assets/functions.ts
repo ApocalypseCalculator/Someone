@@ -3,11 +3,12 @@ import { config } from './config';
 import { Message, Snowflake } from 'discord.js';
 import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
-export function getRandomUserID(msg: Message) {
+export async function getRandomUserID(msg: Message) {
     const server = msg.guild;
     const members: Snowflake[] = [];
     let amount = 0;
 
+    await server?.members.fetch();
     server?.members.cache.forEach((member, key) => {
         if(!member.user.bot && member !== msg.member) {
             if(msg.channel.type !== 'DM' && msg.channel.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
@@ -45,7 +46,7 @@ export function userCount(msg: Message) {
 }
 
 export function addToLeaderboard(id: Snowflake) {
-    const rawData = fs.readFileSync('../data/globalLeaderboard.json', { encoding: 'utf-8' });
+    const rawData = fs.readFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, { encoding: 'utf-8' });
     const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);
     const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === id;
 
@@ -62,18 +63,18 @@ export function addToLeaderboard(id: Snowflake) {
     }
 
     const newUserData = JSON.stringify(parsed);
-    fs.writeFileSync('../data/globalLeaderboard.json', newUserData);
+    fs.writeFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, newUserData);
 }
 
 export function isDisabled(id: Snowflake) {
-    const rawData = fs.readFileSync('../data/blocked.json', { encoding: 'utf-8' });
+    const rawData = fs.readFileSync(`${process.cwd()}/src/data/blocked.json`, { encoding: 'utf-8' });
     const parsed: BlockedChannelData = JSON.parse(rawData);
 
     return parsed.blocked.includes(id);
 }
 
 export function canPing(id: Snowflake) {
-    const rawData = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
+    const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
@@ -87,7 +88,7 @@ export function canPing(id: Snowflake) {
 }
 
 export function usedPing(id: Snowflake) {
-    const rawData = fs.readFileSync('../data/pingtime.json', { encoding: 'utf-8' });
+    const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
@@ -103,7 +104,7 @@ export function usedPing(id: Snowflake) {
     }
 
     const newData = JSON.stringify(parsed);
-    fs.writeFileSync('../data/pingtime.json', newData);
+    fs.writeFileSync(`${process.cwd()}/src/data/pingtime.json`, newData);
 }
 
 export function getElementByProperty<T>(array: T[], targetID: string, targetValue: string) {
