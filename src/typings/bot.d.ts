@@ -1,4 +1,4 @@
-import { Message, ClientEvents, CommandInteraction, CommandInteractionOption } from 'discord.js';
+import { Message, ClientEvents, CommandInteraction, ApplicationCommandOptionData } from 'discord.js';
 import { Someone } from '..';
 
 export interface Command {
@@ -32,7 +32,7 @@ export interface SlashCommand {
     /**
      * The slash command options.
      */
-    options: CommandInteractionOption[];
+    options: ApplicationCommandOptionData[];
     /**
      * The actual stuff the command will do.
      */
