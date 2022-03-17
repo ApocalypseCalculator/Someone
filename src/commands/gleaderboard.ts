@@ -12,12 +12,12 @@ export = {
     execute: (msg, _args, client) => {
         const embed = new MessageEmbed()
             .setColor(13833)
-            .setAuthor(client!.user!.username, client!.user!.avatarURL() as string)
+            .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
             .setTitle('Global Ping Leaderboard')
             .setDescription('The following are the first 10 people on the leaderboard')
             .addField('\u200B', '\u200B')
             .setTimestamp()
-            .setFooter('Someone Bot By ApocalypseCalculator - Licensed', client!.user!.avatarURL() as string);
+            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
         const rawData = fs.readFileSync('../data/globalLeaderboard.json', { encoding: 'utf-8' });
         const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);

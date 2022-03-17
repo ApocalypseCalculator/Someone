@@ -17,16 +17,16 @@ export = {
 
         const embed = new MessageEmbed()
             .setColor(13833)
-            .setAuthor(client!.user!.username, client!.user!.avatarURL() as string)
+            .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
             .setTitle('Global Ping Leaderboard Rank Information')
             .setDescription('Shows your global rank, to show someone else\'s rank, append a ping to the command')
             .addField('\u200B', '\u200B')
             .setTimestamp()
-            .setFooter('Someone Bot By ApocalypseCalculator - Licensed', client!.user!.avatarURL() as string);
+            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
-        if(msg.mentions.members!.size > 1) {
+        if(msg.mentions.members && msg.mentions.members.size > 1) {
             return msg.reply('Bro please mention one user you want to check pings for');
-        } else if(msg.mentions.members!.size === 0) {
+        } else if(msg.mentions.members && msg.mentions.members.size === 0) {
             const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === msg.author.id;
             const index = list.findIndex(botUser);
             if(index !== -1) {

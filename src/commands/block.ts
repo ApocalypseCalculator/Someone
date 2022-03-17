@@ -13,14 +13,14 @@ export = {
         const parsed: BlockedChannelData = JSON.parse(raw);
 
         if(msg.mentions.channels.size === 1) {
-            if(parsed.blocked.includes(msg.mentions.channels.first()!.id)) {
-                parsed.blocked = removeFromArray(parsed.blocked, msg.mentions.channels.first()!.id);
+            if(parsed.blocked.includes(msg.mentions.channels.first()?.id ?? '')) {
+                parsed.blocked = removeFromArray(parsed.blocked, msg.mentions.channels.first()?.id ?? '');
                 const newRaw = JSON.stringify(parsed);
 
                 fs.writeFileSync('../data/blocked.json', newRaw);
                 return msg.reply('Channel re-enabled for @someone pings :D');
             } else {
-                parsed.blocked.push(msg.mentions.channels.first()!.id);
+                parsed.blocked.push(msg.mentions.channels.first()?.id ?? '');
                 const newRaw = JSON.stringify(parsed);
 
                 fs.writeFileSync('../data/blocked.json', newRaw);

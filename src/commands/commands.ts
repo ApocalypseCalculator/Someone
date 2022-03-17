@@ -10,7 +10,7 @@ export = {
     execute: (msg, _args, client) => {
         const embed = new MessageEmbed()
             .setColor(13833)
-            .setAuthor(client!.user!.username, client!.user!.avatarURL() as string)
+            .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
             .setTitle('Someone Bot Commands')
             .setDescription(`This is my command list, to see information about me do ${config.prefix}info.`)
             .addField('\u200B', '\u200B')
@@ -33,7 +33,7 @@ export = {
             .addField('Invite', config.prefix + 'invite', true)
             .addField('\u200B', '\u200B')
             .setTimestamp()
-            .setFooter('Someone Bot By ApocalypseCalculator - Licensed', client!.user!.avatarURL() as string);
+            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
         return msg.reply({ embeds: [embed] });
     },

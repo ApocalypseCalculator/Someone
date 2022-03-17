@@ -16,7 +16,7 @@ export = {
         } else {
             const targetmsg = msg.content.slice(`${config.prefix}fake`.length);
             const fakemember = await getRandomUserID(msg);
-            const faker = msg.guild!.members.cache.get(fakemember);
+            const faker = msg.guild?.members.cache.get(fakemember);
 
             try {
                 const webhook = await (msg.channel as TextChannel).createWebhook((faker as GuildMember)?.displayName ?? 'No name', {

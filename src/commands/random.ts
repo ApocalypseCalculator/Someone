@@ -12,7 +12,7 @@ export = {
         } else {
             const members: string[] = [];
 
-            return msg.guild?.members.fetch().then(memberz => {
+            return msg.guild?.members.fetch().then((memberz) => {
                 memberz.forEach((member, key) => {
                     if(!member.user.bot) {
                         members.push(key);
@@ -37,7 +37,7 @@ export = {
                         const embed = new MessageEmbed()
                             .setColor(13833)
                             .addField(`Here ${(parseInt(args[0]) == 1 ? 'is' : 'are')} your ${args[0]} random member${(parseInt(args[0]) == 1) ? '' : 's'}`, list)
-                            .setFooter('Someone Bot By ApocalypseCalculator - Licensed', client!.user!.avatarURL() as string);
+                            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
                         return msg.reply({ embeds: [embed] });
                     }

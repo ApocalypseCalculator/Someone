@@ -11,14 +11,14 @@ export = {
     execute: (msg, _args, client) => {
         const embed = new MessageEmbed()
             .setColor(13833)
-            .setAuthor(client!.user!.username, client!.user!.avatarURL() as string)
+            .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
             .addField('\u200B', '\u200B')
             .setTimestamp()
-            .setFooter('Someone Bot By ApocalypseCalculator - Licensed', client!.user!.avatarURL() as string);
+            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
-        if(msg.mentions.members!.size > 1) {
+        if(msg.mentions.members && msg.mentions.members.size > 1) {
             return msg.reply('Bro please mention one user you want to check pings for');
-        } else if(msg.mentions.members!.size == 0) {
+        } else if(msg.mentions.members && msg.mentions.members.size == 0) {
             embed.setTitle(`Recorded Pings Received By ${msg.author.username}`);
 
             const rawData = fs.readFileSync('../data/globalLeaderboard.json', { encoding: 'utf-8' });

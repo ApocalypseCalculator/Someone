@@ -13,7 +13,7 @@ export = {
         try {
             const embed = new MessageEmbed()
                 .setTitle('System Stats')
-                .setAuthor(msg.author.username, msg.author.avatarURL() as string)
+                .setAuthor({ name: msg.author.username, iconURL: msg.author.avatarURL() ?? '' })
                 .setColor('GREEN');
 
             try {
