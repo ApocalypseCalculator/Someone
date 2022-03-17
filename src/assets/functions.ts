@@ -3,7 +3,7 @@ import { config } from './config';
 import { Message, Snowflake } from 'discord.js';
 import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
-export async function getRandomUserID(msg: Message) {
+export async function getRandomUserID(msg: Message): Promise<string> {
     const server = msg.guild;
     const members: Snowflake[] = [];
     let amount = 0;
@@ -25,7 +25,7 @@ export async function getRandomUserID(msg: Message) {
     return id;
 }
 
-export function userCount(msg: Message) {
+export function userCount(msg: Message): Promise<number> | undefined {
     const memberArray: Snowflake[] = [];
     let amount = 0;
 
@@ -45,7 +45,7 @@ export function userCount(msg: Message) {
     });
 }
 
-export function addToLeaderboard(id: Snowflake) {
+export function addToLeaderboard(id: Snowflake): void {
     const rawData = fs.readFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, { encoding: 'utf-8' });
     const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);
     const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === id;
@@ -66,14 +66,14 @@ export function addToLeaderboard(id: Snowflake) {
     fs.writeFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, newUserData);
 }
 
-export function isDisabled(id: Snowflake) {
+export function isDisabled(id: Snowflake): boolean {
     const rawData = fs.readFileSync(`${process.cwd()}/src/data/blocked.json`, { encoding: 'utf-8' });
     const parsed: BlockedChannelData = JSON.parse(rawData);
 
     return parsed.blocked.includes(id);
 }
 
-export function canPing(id: Snowflake) {
+export function canPing(id: Snowflake): boolean {
     const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
@@ -87,7 +87,7 @@ export function canPing(id: Snowflake) {
     }
 }
 
-export function usedPing(id: Snowflake) {
+export function usedPing(id: Snowflake): void {
     const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
@@ -107,10 +107,10 @@ export function usedPing(id: Snowflake) {
     fs.writeFileSync(`${process.cwd()}/src/data/pingtime.json`, newData);
 }
 
-export function getElementByProperty<T>(array: T[], targetID: string, targetValue: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getElementByProperty(array: any[], targetID: string, targetValue: string): number {
     for(let i = 0; i < array.length; i++) {
-        // @ts-ignore
-        if(array[i][targetID] === targetValue) { // remember to find a way to fix this, ts might not like it
+        if(array[i][targetID] === targetValue) {
             return i;
         }
     }
@@ -118,9 +118,9 @@ export function getElementByProperty<T>(array: T[], targetID: string, targetValu
     return -1;
 }
 
-export function removeFromArray<T>(array: T[], target: T) {
+export function removeFromArray<T>(array: T[], target: T): T[] {
     const newArray: T[] = [];
-    array.forEach(element => {
+    array.forEach((element) => {
         if(element !== target) {
             newArray.push(element);
         }
@@ -129,7 +129,7 @@ export function removeFromArray<T>(array: T[], target: T) {
     return newArray;
 }
 
-export function formatTime(num: number) {
+export function formatTime(num: number): string {
     let left = num;
 
     const days = Math.floor(num / (60 * 60.0 * 24));
