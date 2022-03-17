@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import { Client, Collection } from 'discord.js';
 import { token } from './assets/token';
 import { Command, EventHandler, SlashCommand } from './typings/bot';
