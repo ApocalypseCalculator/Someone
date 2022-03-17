@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { config } from './config';
-import { Message, Snowflake } from 'discord.js';
+import { CommandInteraction, Message, Snowflake } from 'discord.js';
 import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
-export async function getRandomUserID(msg: Message): Promise<string> {
+export async function getRandomUserID(msg: Message | CommandInteraction): Promise<string> {
     const server = msg.guild;
     const members: Snowflake[] = [];
     let amount = 0;
@@ -11,7 +11,7 @@ export async function getRandomUserID(msg: Message): Promise<string> {
     await server?.members.fetch();
     server?.members.cache.forEach((member, key) => {
         if(!member.user.bot && member !== msg.member) {
-            if(msg.channel.type !== 'DM' && msg.channel.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
+            if(msg.channel?.type !== 'DM' && msg.channel?.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
                 members.push(key);
                 amount++;
             }
@@ -107,8 +107,7 @@ export function usedPing(id: Snowflake): void {
     fs.writeFileSync(`${process.cwd()}/src/data/pingtime.json`, newData);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getElementByProperty(array: any[], targetID: string, targetValue: string): number {
+export function getElementByProperty(array: PingCooldownUserStats[], targetID: keyof PingCooldownUserStats, targetValue: string): number {
     for(let i = 0; i < array.length; i++) {
         if(array[i][targetID] === targetValue) {
             return i;
