@@ -1,5 +1,8 @@
 {
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
     "env": {
         "node": true,
         "es6": true
@@ -98,6 +101,7 @@
         "space-infix-ops": "error",
         "space-unary-ops": "error",
         "spaced-comment": "error",
-        "yoda": "error"
+        "yoda": "error",
+        "@typescript-eslint/no-var-requires": "off"
     }
 }
