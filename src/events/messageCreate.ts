@@ -132,7 +132,7 @@ export = {
                         err: `${err}`,
                         id: `${errid}`,
                         time: Date.now(),
-                        server: msg.guild!.id,
+                        server: msg.guild?.id ?? 'unknown',
                         user: msg.author.id,
                         command: `${msg.content}`,
                     };
