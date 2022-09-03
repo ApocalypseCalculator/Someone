@@ -1,5 +1,4 @@
-import { Message, ClientEvents, CommandInteraction, ApplicationCommandOptionData } from 'discord.js';
-import { APIMessage } from 'discord-api-types';
+import { Message, ClientEvents, CommandInteraction, ApplicationCommandOptionData, InteractionResponse } from 'discord.js';
 import { Someone } from '..';
 
 export interface Command {
@@ -37,7 +36,7 @@ export interface SlashCommand {
     /**
      * The actual stuff the command will do.
      */
-    execute: (interaction: CommandInteraction, client?: Someone) => Promise<APIMessage | Message | void>;
+    execute: (interaction: CommandInteraction, client?: Someone) => Promise<InteractionResponse>;
 }
 
 export interface EventHandler {
