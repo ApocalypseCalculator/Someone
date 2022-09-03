@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 import { EventHandler, SlashCommand } from '../typings/bot';
-import { config } from '../assets/config';
 import { Someone } from '..';
+import { ActivityType } from 'discord.js';
 
 export = {
     name: 'ready',
@@ -12,10 +12,10 @@ export = {
         const guild_id = '724624373369012231'; // CHANGE WHEN MERGING INTO PROD BOT
 
 		try {
-			const slash_command_files = fs.readdirSync(path.join(process.cwd(), 'src', 'commands', 'slashCommands')).filter((file) => file.endsWith('.ts'));
+			const slash_command_files = fs.readdirSync(path.join(process.cwd(), 'src', 'slashCommands')).filter((file) => file.endsWith('.ts'));
 
 			for(const file of slash_command_files) {
-				const command: SlashCommand = require(path.join(process.cwd(), 'src', 'commands', 'slashCommands', `${file}`));
+				const command: SlashCommand = require(path.join(process.cwd(), 'src', 'slashCommands', `${file}`));
 
 				if(command.global === true) {
 					const data = {
@@ -46,8 +46,8 @@ export = {
 
         self.user?.setPresence({
             activities: [{
-                type: 'WATCHING',
-                name: ` for ${config.prefix}help`,
+                type: ActivityType.Watching,
+                name: ' for /help',
             }],
             status: 'online',
         });

@@ -1,9 +1,7 @@
-import fs from 'fs';
-import { Message, TextChannel, MessageEmbed, ClientUser } from 'discord.js';
+import { Message, EmbedBuilder, ChannelType } from 'discord.js';
 import { config } from '../assets/config';
 import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, usedPing } from '../assets/functions';
 import { EventHandler } from '../typings/bot';
-import { BotError } from '../typings/assets';
 import { Someone } from '..';
 
 export = {
@@ -11,17 +9,21 @@ export = {
     async callback(msg: Message) {
         const self = this as unknown as Someone;
 
-        if(msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === 'DM') {
+        if(msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === ChannelType.DM) {
             return;
         }
 
-        if(msg.mentions.members?.has(self.user?.id as string) && !canPing(msg.author.id)) {
+        if(!self.user) {
+            return;
+        }
+
+        if(msg.mentions.members?.has(self.user.id) && !canPing(msg.author.id)) {
             return msg.reply('calm down with the pings dude. (1 minute cooldown)');
         }
 
-        if(msg.mentions.members?.has(self.user?.id as string) && !msg.content.includes('\\<@')) {
+        if(msg.mentions.members?.has(self.user.id) && !msg.content.includes('\\<@')) {
             if(msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
-                if(!msg.member?.permissions.has('MENTION_EVERYONE')) {
+                if(!msg.member?.permissions.has('MentionEveryone')) {
                     msg.channel.send('I see what you\'re doing, and I don\'t like it');
                     if(config.logging) {
                         return console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
@@ -39,7 +41,7 @@ export = {
             } else {
                 const usrcount = await userCount(msg);
                 if(!isDisabled(msg.channel.id)) {
-                    return msg.guild?.members.fetch(self.user as ClientUser).then(async (member) => {
+                    return msg.guild?.members.fetch(self.user).then(async (member) => {
                         if(!usrcount || usrcount <= 5) {
                             return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
                         }
@@ -48,12 +50,14 @@ export = {
                             return msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
                         }
 
-                        if(member.permissions.has('ADMINISTRATOR') || (member.permissions.has('MANAGE_WEBHOOKS') && member.permissions.has('MANAGE_MESSAGES'))) {
+                        if(msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
                             try {
-                                const webhook = await (msg.channel as TextChannel).createWebhook(msg.member?.displayName as string, {
+                                const webhook = await msg.channel.createWebhook({
+                                    name: msg.member?.displayName as string,
                                     avatar: msg.author.avatarURL() || 'https://cdn.discordapp.com/attachments/793653928159608843/882819198907215892/upload.jpg',
                                     reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`,
                                 });
+
                                 if(config.logging) {
                                     console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                                 }
@@ -81,13 +85,13 @@ export = {
                             }
                         } else {
                             msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
-                            const embed = new MessageEmbed()
+                            const embed = new EmbedBuilder()
                                 .setColor(13833)
-                                .setAuthor((self.user as ClientUser).username, (self.user as ClientUser).avatarURL() as string)
+                                .setAuthor({ name: self.user?.username ?? 'Someone', iconURL: self.user?.avatarURL() ?? '' })
                                 .setTitle('Permissions Demo')
                                 .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
                                 .setTimestamp()
-                                .setFooter('Someone Bot By ApocalypseCalculator - Licensed', (self.user as ClientUser).avatarURL() as string);
+                                .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: self.user?.avatarURL() ?? '' });
 
                             return msg.channel.send({ embeds: [embed] });
                         }
@@ -100,55 +104,9 @@ export = {
             }
         }
 
-        if(msg.mentions.members?.has(self.user?.id as string)) {
+        if(msg.mentions.members?.has(self.user.id)) {
             msg.channel.send('I see what you are doing, and I don\'t like it');
             return console.log(`${msg.author.username}\t(failed ping)\t: ${msg.content}`);
-        }
-
-        if(!msg.content.startsWith(config.prefix)) {
-            return;
-        }
-
-        const args = msg.content.slice(config.prefix.length).trim().split(' ');
-        const commandName = args.shift()?.toLowerCase();
-        if(!commandName || commandName.length === 0) {
-            return;
-        }
-
-        const command = self?.commands?.get(commandName);
-        if(!command) {
-            return msg.channel.send('command not found');
-        }
-
-        if(command.verify(msg)) {
-            try {
-                return await command.execute(msg, args, self);
-            } catch(err) {
-                try {
-                    const raw = fs.readFileSync('../data/err.json', { encoding: 'utf-8' });
-                    const parsed: BotError[] = JSON.parse(raw);
-                    const errid = Buffer.from(`${Math.random().toString(36).substring(7)}-${Date.now()}`).toString('base64');
-                    const newobj: BotError = {
-                        err: `${err}`,
-                        id: `${errid}`,
-                        time: Date.now(),
-                        server: msg.guild?.id ?? 'unknown',
-                        user: msg.author.id,
-                        command: `${msg.content}`,
-                    };
-
-                    parsed.push(newobj);
-                    const newraw = JSON.stringify(parsed);
-
-                    fs.writeFileSync('../data/err.json', newraw);
-                    return msg.channel.send(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`${config.prefix}info\` for invite).`);
-                } catch(err) {
-                    console.log(err);
-                    return msg.channel.send('Fatal error occurred');
-                }
-            }
-        } else {
-            return msg.channel.send('You do not have permission to use this command');
         }
     },
 } as EventHandler;
