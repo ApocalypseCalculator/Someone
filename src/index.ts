@@ -21,19 +21,6 @@ export class Someone extends Client {
 
 const client = new Someone();
 
-const commandFiles = fs.readdirSync(path.join(process.cwd(), 'src', 'commands')).filter((file) => file.endsWith('.ts'));
-for(const file of commandFiles) {
-    const command: Command = require(path.join(process.cwd(), 'src', 'commands', `${file}`));
-    if(!command.name || !command.execute) {
-        console.error(`\x1b[31mInvalid command: ${file}\x1b[0m`);
-    } else if(command.name in client.commands) {
-        console.error(`\x1b[31mDuplicate command name: ${file} (${command.name})\x1b[0m`);
-    } else {
-        client.commands.set(command.name, command);
-        console.log(`Loaded command: ${file} (${command.name})`);
-    }
-}
-
 const events = fs.readdirSync(path.join(process.cwd(), 'src', 'events'));
 function loadEvents() {
     for(const file of events) {
