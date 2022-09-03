@@ -1,7 +1,9 @@
 import fs from 'fs';
+import path from 'path';
 import { SlashCommand } from '../typings/bot';
 import { config } from '../assets/config';
 import { BotError } from '../typings/assets';
+import { ApplicationCommandOptionType } from 'discord.js';
 
 export = {
     name: 'errtrace',
@@ -10,7 +12,7 @@ export = {
     options: [{
         name: 'id',
         description: 'The ID of the error trace.',
-        type: 'STRING',
+        type: ApplicationCommandOptionType.String,
         required: true,
     }],
     execute: (interaction) => {
@@ -18,10 +20,10 @@ export = {
             return interaction.reply({ content: 'not authorized', ephemeral: true });
         }
 
-        const raw = fs.readFileSync('./data/err.json', { encoding: 'utf-8' });
+        const raw = fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'err.json'), { encoding: 'utf-8' });
         const parsed: BotError[] = JSON.parse(raw);
 
-        const errs = parsed.filter((err) => err.id === interaction.options.getString('id', true));
+        const errs = parsed.filter((err) => err.id === interaction.options.get('id', true).value);
         if(errs.length === 0) {
             return interaction.reply('No error with ID found.');
         } else {

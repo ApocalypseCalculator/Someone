@@ -1,5 +1,6 @@
 import fs from 'fs';
-import { MessageEmbed } from 'discord.js';
+import path from 'path';
+import { EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import { BlockedChannelData } from '../typings/assets';
 
@@ -8,7 +9,7 @@ export = {
     description: 'Shows all blocked channels in a guild.',
     global: true,
     execute: (interaction) => {
-        const rawData = fs.readFileSync('../data/blocked.json', { encoding: 'utf-8' });
+        const rawData = fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'blocked.json'), { encoding: 'utf-8' });
         const parsed: BlockedChannelData = JSON.parse(rawData);
 
         let blocked = '';
@@ -21,9 +22,9 @@ export = {
         if(blocked.length > 1900) {
             return interaction.reply('Oof you have too many channels blocked in this server');
         } else {
-            const embed = new MessageEmbed()
+            const embed = new EmbedBuilder()
                 .setColor(13833)
-                .addField('Blocked channels in this server', (blocked === '') ? 'No blocked channels' : blocked);
+                .addFields({ name: 'Blocked channels in this server', value: (blocked === '') ? 'No blocked channels' : blocked });
 
             return interaction.reply({ embeds: [embed] });
         }

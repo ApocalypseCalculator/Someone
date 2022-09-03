@@ -1,4 +1,4 @@
-import { MessageEmbed } from 'discord.js';
+import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 
 export = {
@@ -8,11 +8,12 @@ export = {
     options: [{
         name: 'amount',
         description: 'How many members to fetch.',
-        type: 'INTEGER',
+        type: ApplicationCommandOptionType.Integer,
         required: true,
     }],
     execute: (interaction, client) => {
-        if(isNaN(interaction.options.getInteger('amount', true))) {
+        const number = interaction.options.get('amount', true).value;
+        if(typeof number !== 'number' || isNaN(number)) {
             return interaction.reply('Invalid arguments');
         } else {
             const members: string[] = [];
@@ -24,13 +25,13 @@ export = {
                     }
                 });
 
-                if(members.length <= interaction.options.getInteger('amount', true)) {
-                    return interaction.reply(`Too little members in this server to pick ${interaction.options.getInteger('amount', true)} random members`);
-                } else if(interaction.options.getInteger('amount', true) <= 0) {
+                if(members.length <= number) {
+                    return interaction.reply(`Too little members in this server to pick ${number} random members`);
+                } else if(number <= 0) {
                     return interaction.reply('Please provide a valid number > 0');
                 } else {
                     let list = '';
-                    for(let i = 0; i < interaction.options.getInteger('amount', true); i++) {
+                    for(let i = 0; i < number; i++) {
                         const randomNum = Math.round((members.length - 1) * Math.random());
                         list += `<@${members[randomNum]}> `;
                         members.splice(randomNum, 1);
@@ -39,9 +40,9 @@ export = {
                     if(list.length >= 1990) {
                         return interaction.reply('Your member list is wayyyy too long. Try a smaller number maybe?');
                     } else {
-                        const embed = new MessageEmbed()
+                        const embed = new EmbedBuilder()
                             .setColor(13833)
-                            .addField(`Here ${(interaction.options.getInteger('amount', true) == 1 ? 'is' : 'are')} your ${interaction.options.getInteger('amount', true)} random member${(interaction.options.getInteger('amount', true) == 1) ? '' : 's'}`, list)
+                            .addFields({ name: `Here ${(number == 1 ? 'is' : 'are')} your ${number} random member${(number == 1) ? '' : 's'}`, value: list })
                             .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
                         return interaction.reply({ embeds: [embed] });
