@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { config } from './config';
-import { CommandInteraction, Message, Snowflake } from 'discord.js';
+import { ChannelType, CommandInteraction, Message, Snowflake } from 'discord.js';
 import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 
 export async function getRandomUserID(msg: Message | CommandInteraction): Promise<string> {
@@ -11,7 +11,7 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
     await server?.members.fetch();
     server?.members.cache.forEach((member, key) => {
         if(!member.user.bot && member !== msg.member) {
-            if(msg.channel?.type !== 'DM' && msg.channel?.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
+            if(msg.channel?.type !== ChannelType.DM && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
                 members.push(key);
                 amount++;
             }
@@ -32,7 +32,7 @@ export function userCount(msg: Message): Promise<number> | undefined {
     return msg.guild?.members.fetch().then(members => {
         members.forEach((member, key) => {
             if(!member.user.bot && member != msg.member) {
-                if(msg.channel.type !== 'DM' && msg.channel.permissionsFor(member).has('VIEW_CHANNEL') && msg.channel.permissionsFor(member).has('READ_MESSAGE_HISTORY')) {
+                if(msg.channel.type !== ChannelType.DM && msg.channel.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
                     memberArray.push(key);
                     amount++;
                 }
