@@ -1,7 +1,9 @@
 import fs from 'fs';
 import { config } from './config';
 import { ChannelType, CommandInteraction, Message, Snowflake } from 'discord.js';
-import { BlockedChannelData, GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
+import { GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 export async function getRandomUserID(msg: Message | CommandInteraction): Promise<string> {
     const server = msg.guild;
@@ -10,8 +12,8 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
 
     await server?.members.fetch();
     server?.members.cache.forEach((member, key) => {
-        if(!member.user.bot && member !== msg.member) {
-            if(msg.channel?.type !== ChannelType.DM && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
+        if (!member.user.bot && member !== msg.member) {
+            if (msg.channel?.type !== ChannelType.DM && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
                 members.push(key);
                 amount++;
             }
@@ -31,8 +33,8 @@ export function userCount(msg: Message): Promise<number> | undefined {
 
     return msg.guild?.members.fetch().then(members => {
         members.forEach((member, key) => {
-            if(!member.user.bot && member != msg.member) {
-                if(msg.channel.type !== ChannelType.DM && msg.channel.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
+            if (!member.user.bot && member != msg.member) {
+                if (msg.channel.type !== ChannelType.DM && msg.channel.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
                     memberArray.push(key);
                     amount++;
                 }
@@ -51,7 +53,7 @@ export function addToLeaderboard(id: Snowflake): void {
     const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === id;
 
     const index = parsed.users.findIndex(botUser);
-    if(index === -1) {
+    if (index === -1) {
         const newUserData: GlobalLeaderboardUserStats = {
             discordID: id,
             pinged: 1,
@@ -66,11 +68,18 @@ export function addToLeaderboard(id: Snowflake): void {
     fs.writeFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, newUserData);
 }
 
-export function isDisabled(id: Snowflake): boolean {
-    const rawData = fs.readFileSync(`${process.cwd()}/src/data/blocked.json`, { encoding: 'utf-8' });
-    const parsed: BlockedChannelData = JSON.parse(rawData);
-
-    return parsed.blocked.includes(id);
+export async function isDisabled(id: Snowflake): Promise<boolean> {
+    let chnldata = await prisma.channel.findUnique({
+        where: {
+            channelid: id
+        }
+    });
+    if (chnldata && chnldata.blocked) { //directly returning this makes typescript error
+        return false;
+    }
+    else {
+        return true;
+    }
 }
 
 export function canPing(id: Snowflake): boolean {
@@ -78,9 +87,9 @@ export function canPing(id: Snowflake): boolean {
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
-    if(index === -1) {
+    if (index === -1) {
         return true;
-    } else if(parsed.users[index].lastping > Date.now() - config.pingcooldown) {
+    } else if (parsed.users[index].lastping > Date.now() - config.pingcooldown) {
         return false;
     } else {
         return true;
@@ -92,7 +101,7 @@ export function usedPing(id: Snowflake): void {
     const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
 
     const index = getElementByProperty(parsed.users, 'discordID', id);
-    if(index === -1) {
+    if (index === -1) {
         const newUserData: PingCooldownUserStats = {
             discordID: id,
             lastping: Date.now(),
@@ -108,8 +117,8 @@ export function usedPing(id: Snowflake): void {
 }
 
 export function getElementByProperty(array: PingCooldownUserStats[], targetID: keyof PingCooldownUserStats, targetValue: string): number {
-    for(let i = 0; i < array.length; i++) {
-        if(array[i][targetID] === targetValue) {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i][targetID] === targetValue) {
             return i;
         }
     }
@@ -120,7 +129,7 @@ export function getElementByProperty(array: PingCooldownUserStats[], targetID: k
 export function removeFromArray<T>(array: T[], target: T): T[] {
     const newArray: T[] = [];
     array.forEach((element) => {
-        if(element !== target) {
+        if (element !== target) {
             newArray.push(element);
         }
     });

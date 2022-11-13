@@ -40,7 +40,8 @@ export = {
                 }
             } else {
                 const usrcount = await userCount(msg);
-                if(!isDisabled(msg.channel.id)) {
+                const disabled = await isDisabled(msg.channel.id);
+                if(!disabled) {
                     return msg.guild?.members.fetch(self.user).then(async (member) => {
                         if(!usrcount || usrcount <= 5) {
                             return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
