@@ -1,0 +1,21 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:data.db"
+}
+
+model Channel {
+    channelid String  @id
+    guild     String
+    blocked   Boolean @default(false)
+    webhook   String
+}
+
+model User {
+    discordid String @id
+    lastping  Int
+    pinged    Int
+}
