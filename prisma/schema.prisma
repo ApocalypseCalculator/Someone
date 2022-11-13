@@ -19,3 +19,13 @@ model User {
     lastping  Int
     pinged    Int
 }
+
+model Error {
+    errid     String @id
+    error     String
+    time      Int
+    guild     String
+    channelid String
+    discordid String
+    command   String
+}

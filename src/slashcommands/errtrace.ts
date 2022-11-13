@@ -1,9 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { SlashCommand } from '../typings/bot';
 import { config } from '../assets/config';
-import { BotError } from '../typings/assets';
 import { ApplicationCommandOptionType } from 'discord.js';
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 export = {
     name: 'errtrace',
@@ -15,19 +14,22 @@ export = {
         type: ApplicationCommandOptionType.String,
         required: true,
     }],
-    execute: (interaction) => {
-        if(config.hostID !== interaction.user.id) {
+    execute: async (interaction) => {
+        if (config.hostID !== interaction.user.id) {
             return interaction.reply({ content: 'not authorized', ephemeral: true });
         }
 
-        const raw = fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'err.json'), { encoding: 'utf-8' });
-        const parsed: BotError[] = JSON.parse(raw);
+        const errid = interaction.options.get('id', true).value;
 
-        const errs = parsed.filter((err) => err.id === interaction.options.get('id', true).value);
-        if(errs.length === 0) {
+        let err = await prisma.error.findUnique({
+            where: {
+                errid: errid as string
+            }
+        })
+        if (!err) {
             return interaction.reply('No error with ID found.');
         } else {
-            return interaction.reply(`\`\`\`Error: ${errs[0].err}\nID: ${errs[0].id}\nTime: ${new Date(errs[0].time).toUTCString()}\nServer: ${errs[0].server}\nUser: ${errs[0].user}\nCommand: ${errs[0].command}\`\`\``);
+            return interaction.reply(`\`\`\`Error: ${err.error}\nID: ${err.errid}\nTime: ${new Date(err.time).toUTCString()}\nServer: ${err.guild}\nChannel: ${err.channelid}\nUser: ${err.discordid}\nCommand: ${err.command}\`\`\``);
         }
     },
 } as SlashCommand;
