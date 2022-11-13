@@ -9,7 +9,7 @@ export = {
     name: 'ready',
     async callback() {
         const self = this as unknown as Someone;
-        const guild_id = '724624373369012231'; // CHANGE WHEN MERGING INTO PROD BOT
+        const guild_id = '711367944227258369'; // CHANGE WHEN MERGING INTO PROD BOT
 
 		try {
 			const slash_command_files = fs.readdirSync(path.join(process.cwd(), 'src', 'slashCommands')).filter((file) => file.endsWith('.ts'));

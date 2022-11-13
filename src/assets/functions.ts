@@ -1,7 +1,5 @@
-import fs from 'fs';
 import { config } from './config';
 import { ChannelType, CommandInteraction, Message, Snowflake, TextChannel, User, WebhookClient } from 'discord.js';
-import { GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -62,7 +60,7 @@ async function sendNewWebhook(interaction: CommandInteraction, usr: User, conten
     }).catch(err => {
         return false;
     });
-    if(!whclient || !(whclient instanceof WebhookClient)) {
+    if (!whclient || !(whclient instanceof WebhookClient)) {
         return false;
     }
     await whclient.send({
@@ -106,25 +104,22 @@ export function userCount(msg: Message): Promise<number> | undefined {
     });
 }
 
-export function addToLeaderboard(id: Snowflake): void {
-    const rawData = fs.readFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, { encoding: 'utf-8' });
-    const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);
-    const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === id;
-
-    const index = parsed.users.findIndex(botUser);
-    if (index === -1) {
-        const newUserData: GlobalLeaderboardUserStats = {
-            discordID: id,
-            pinged: 1,
-        };
-
-        parsed.users.push(newUserData);
-    } else {
-        parsed.users[index].pinged++;
-    }
-
-    const newUserData = JSON.stringify(parsed);
-    fs.writeFileSync(`${process.cwd()}/src/data/globalLeaderboard.json`, newUserData);
+export async function addToLeaderboard(id: Snowflake): Promise<void> {
+    await prisma.user.upsert({
+        where: {
+            discordid: id
+        },
+        update: {
+            pinged: {
+                increment: 1
+            }
+        },
+        create: {
+            discordid: id,
+            lastping: 0,
+            pinged: 1
+        }
+    })
 }
 
 export async function isDisabled(id: Snowflake): Promise<boolean> {
@@ -141,48 +136,34 @@ export async function isDisabled(id: Snowflake): Promise<boolean> {
     }
 }
 
-export function canPing(id: Snowflake): boolean {
-    const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
-    const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
-
-    const index = getElementByProperty(parsed.users, 'discordID', id);
-    if (index === -1) {
-        return true;
-    } else if (parsed.users[index].lastping > Date.now() - config.pingcooldown) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-export function usedPing(id: Snowflake): void {
-    const rawData = fs.readFileSync(`${process.cwd()}/src/data/pingtime.json`, { encoding: 'utf-8' });
-    const parsed: GlobalPingCooldownTotalData = JSON.parse(rawData);
-
-    const index = getElementByProperty(parsed.users, 'discordID', id);
-    if (index === -1) {
-        const newUserData: PingCooldownUserStats = {
-            discordID: id,
-            lastping: Date.now(),
-        };
-
-        parsed.users.push(newUserData);
-    } else {
-        parsed.users[index].lastping = Date.now();
-    }
-
-    const newData = JSON.stringify(parsed);
-    fs.writeFileSync(`${process.cwd()}/src/data/pingtime.json`, newData);
-}
-
-export function getElementByProperty(array: PingCooldownUserStats[], targetID: keyof PingCooldownUserStats, targetValue: string): number {
-    for (let i = 0; i < array.length; i++) {
-        if (array[i][targetID] === targetValue) {
-            return i;
+export async function canPing(id: Snowflake): Promise<boolean> {
+    const user = await prisma.user.findUnique({
+        where: {
+            discordid: id
         }
+    });
+    if (user && user.lastping > Date.now() - config.pingcooldown) {
+        return false;
     }
+    else {
+        return true;
+    }
+}
 
-    return -1;
+export async function usedPing(id: Snowflake): Promise<void> {
+    await prisma.user.upsert({
+        where: {
+            discordid: id
+        },
+        update: {
+            lastping: Date.now()
+        },
+        create: {
+            discordid: id,
+            lastping: Date.now(),
+            pinged: 0
+        }
+    })
 }
 
 export function formatTime(num: number): string {
