@@ -11,7 +11,7 @@ model Channel {
     channelid String  @id
     guild     String
     blocked   Boolean @default(false)
-    webhook   String
+    webhook   String?
 }
 
 model User {
