@@ -13,48 +13,39 @@ export = {
         description: 'Which channel to block from using the bot.',
         required: true,
     }],
-    execute: (interaction) => {
+    execute: async (interaction) => {
         if (!interaction.memberPermissions?.has('Administrator', true)) {
             return interaction.reply({ content: 'not authorized', ephemeral: true });
         }
 
         const channel = interaction.options.get('channel', true).channel;
         if (channel) {
-            prisma.channel.findUnique({
+            let chnldata = await prisma.channel.findUnique({
                 where: {
                     channelid: channel.id
                 }
-            }).then((chnldata) => {
-                if (chnldata) {
-                    prisma.channel.update({
-                        where: {
-                            channelid: channel.id
-                        },
-                        data: {
-                            blocked: !chnldata.blocked
-                        }
-                    }).then(() => {
-                        return interaction.reply(`Channel ${chnldata.blocked ? "re-enabled" : "disabled"} for @someone pings`);
-                    }).catch(() => {
-                        return interaction.reply(`Error occurred`);
-                    });
-                }
-                else {
-                    prisma.channel.create({
-                        data: {
-                            channelid: channel.id,
-                            guild: interaction.guildId ?? "",
-                            blocked: false
-                        }
-                    }).then(() => {
-                        return interaction.reply(`Channel disabled for @someone pings`);
-                    }).catch(() => {
-                        return interaction.reply(`Error occurred`);
-                    });
-                }
-            }).catch(() => {
-                return interaction.reply(`Error occurred`);
             });
+            if (chnldata) {
+                await prisma.channel.update({
+                    where: {
+                        channelid: channel.id
+                    },
+                    data: {
+                        blocked: !chnldata.blocked
+                    }
+                });
+                return interaction.reply(`Channel ${chnldata!.blocked ? "re-enabled" : "disabled"} for @someone pings`);
+            }
+            else {
+                await prisma.channel.create({
+                    data: {
+                        channelid: channel.id,
+                        guild: interaction.guildId ?? "",
+                        blocked: false
+                    }
+                });
+                return interaction.reply(`Channel disabled for @someone pings`);
+            }
         } else {
             return interaction.reply('Please mention a channel to disable/re-enable.');
         }

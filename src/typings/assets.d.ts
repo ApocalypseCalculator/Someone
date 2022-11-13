@@ -9,10 +9,6 @@ export interface GlobalLeaderboardTotalData {
     users: GlobalLeaderboardUserStats[];
 }
 
-export interface BlockedChannelData {
-    blocked: Snowflake[];
-}
-
 export interface PingCooldownUserStats {
     discordID: Snowflake;
     lastping: number;
