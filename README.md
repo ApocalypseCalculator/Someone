@@ -1,7 +1,9 @@
 # Someone
 ## ABOUT THE BOT
 
-The legendary Someone bot for Discord. Brings back Discord's 2018 April Fools joke. Created by ApocalypseCalculator#7096.
+The legendary Someone bot for Discord. Brings back Discord's 2018 April Fools joke. Created by ApocalypseCalculator#7096. 
+
+Huge thanks to [Terrarian](https://github.com/Terra-rian) for rewriting into TypeScript, updating to new Discord.js, and adding slash commands.
 
 ## WHAT THE BOT DOES
 
