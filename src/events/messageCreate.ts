@@ -66,6 +66,7 @@ export = {
                                 await msg.delete().catch(() => {
                                     msg.channel.send('Unable to delete message');
                                 })
+                                return;
                             } catch (error) {
                                 console.log(error);
                                 return msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
