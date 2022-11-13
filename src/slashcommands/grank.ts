@@ -1,8 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import { SlashCommand } from '../typings/bot';
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import { GlobalLeaderboardTotalData, GlobalLeaderboardUserStats } from '../typings/assets';
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 export = {
     name: 'grank',
@@ -14,13 +13,7 @@ export = {
         type: ApplicationCommandOptionType.User,
         required: true,
     }],
-    execute: (interaction, client) => {
-        const rawData = fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'globalLeaderboard.json'), { encoding: 'utf-8' });
-        const parsed: GlobalLeaderboardTotalData = JSON.parse(rawData);
-
-        const list = parsed.users;
-        list.sort((a, b) => (a.pinged > b.pinged) ? 1 : -1);
-
+    execute: async (interaction, client) => {
         const embed = new EmbedBuilder()
             .setColor(13833)
             .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
@@ -30,18 +23,26 @@ export = {
             .setTimestamp()
             .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
 
-        const botUser = (element: GlobalLeaderboardUserStats) => element.discordID === interaction.options.getUser('user', true).id;
-        const index = list.findIndex(botUser);
-        if(index !== -1) {
-            embed.addFields({ name: 'Ping Count', value: `<@!${interaction.options.getUser('user', true).id}> is ranked **#${(list.length - index)}** globally for pings received` });
-            embed.addFields({ name: '\u200B', value: '\u200B' });
-
-            return interaction.reply({ embeds: [embed] });
-        } else {
+        let user = await prisma.user.findUnique({
+            where: {
+                discordid: interaction.options.getUser('user', true).id
+            }
+        })
+        if (!user) {
             embed.addFields({ name: 'Ping Count', value: `<@!${interaction.options.getUser('user', true).id}> is not ranked` });
             embed.addFields({ name: '\u200B', value: '\u200B' });
-
             return interaction.reply({ embeds: [embed] });
         }
+        let lgtlist = await prisma.user.findMany({
+            where: {
+                pinged: {
+                    gt: user?.pinged
+                }
+            }
+        });
+        embed.addFields({ name: 'Ping Count', value: `<@!${interaction.options.getUser('user', true).id}> is ranked **#${lgtlist.length + 1}** globally for pings received` });
+        embed.addFields({ name: '\u200B', value: '\u200B' });
+
+        return interaction.reply({ embeds: [embed] });
     },
 } as SlashCommand;
