@@ -1,9 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import { SlashCommand } from '../typings/bot';
-import { removeFromArray } from '../assets/functions';
-import { BlockedChannelData } from '../typings/assets';
 import { ApplicationCommandOptionType } from 'discord.js';
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 export = {
     name: 'block',
@@ -16,28 +14,47 @@ export = {
         required: true,
     }],
     execute: (interaction) => {
-        if(!interaction.memberPermissions?.has('Administrator', true)) {
+        if (!interaction.memberPermissions?.has('Administrator', true)) {
             return interaction.reply({ content: 'not authorized', ephemeral: true });
         }
 
-        const raw = fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'blocked.json'), { encoding: 'utf-8' });
-        const parsed: BlockedChannelData = JSON.parse(raw);
-
         const channel = interaction.options.get('channel', true).channel;
-        if(channel) {
-            if(parsed.blocked.includes(channel.id)) {
-                parsed.blocked = removeFromArray(parsed.blocked, channel.id);
-                const newRaw = JSON.stringify(parsed);
-
-                fs.writeFileSync(path.join(process.cwd(), 'src', 'data', 'blocked.json'), newRaw);
-                return interaction.reply('Channel re-enabled for @someone pings :D');
-            } else {
-                parsed.blocked.push(channel.id);
-                const newRaw = JSON.stringify(parsed);
-
-                fs.writeFileSync(path.join(process.cwd(), 'src', 'data', 'blocked.json'), newRaw);
-                return interaction.reply('Channel disabled for @someone pings D:');
-            }
+        if (channel) {
+            prisma.channel.findUnique({
+                where: {
+                    channelid: channel.id
+                }
+            }).then((chnldata) => {
+                if (chnldata) {
+                    prisma.channel.update({
+                        where: {
+                            channelid: channel.id
+                        },
+                        data: {
+                            blocked: !chnldata.blocked
+                        }
+                    }).then(() => {
+                        return interaction.reply(`Channel ${chnldata.blocked ? "re-enabled" : "disabled"} for @someone pings`);
+                    }).catch(() => {
+                        return interaction.reply(`Error occurred`);
+                    });
+                }
+                else {
+                    prisma.channel.create({
+                        data: {
+                            channelid: channel.id,
+                            guild: interaction.guildId ?? "",
+                            blocked: false
+                        }
+                    }).then(() => {
+                        return interaction.reply(`Channel disabled for @someone pings`);
+                    }).catch(() => {
+                        return interaction.reply(`Error occurred`);
+                    });
+                }
+            }).catch(() => {
+                return interaction.reply(`Error occurred`);
+            });
         } else {
             return interaction.reply('Please mention a channel to disable/re-enable.');
         }
