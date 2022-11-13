@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { config } from './config';
-import { ChannelType, CommandInteraction, Message, Snowflake } from 'discord.js';
+import { ChannelType, CommandInteraction, Message, Snowflake, TextChannel, User, WebhookClient } from 'discord.js';
 import { GlobalLeaderboardTotalData, GlobalLeaderboardUserStats, GlobalPingCooldownTotalData, PingCooldownUserStats } from '../typings/assets';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
@@ -25,6 +25,65 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
 
     console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
     return id;
+}
+
+export async function sendWebhook(interaction: CommandInteraction, usr: User, content: string): Promise<boolean> {
+    let channel = await prisma.channel.findUnique({
+        where: {
+            channelid: interaction.channelId
+        }
+    });
+
+    if (channel && channel.webhook && channel.webhook !== "") {
+        const whclient = new WebhookClient({
+            url: channel.webhook
+        });
+        await whclient.send({
+            username: usr.username,
+            avatarURL: usr.avatar ?? usr.defaultAvatarURL,
+            content: content
+        }).catch(async () => {
+            return await sendNewWebhook(interaction, usr, content);
+        });
+        return true;
+    }
+    else {
+        return await sendNewWebhook(interaction, usr, content);
+    }
+}
+
+async function sendNewWebhook(interaction: CommandInteraction, usr: User, content: string): Promise<boolean> {
+    if (!(interaction.channel instanceof TextChannel)) {
+        return false;
+    }
+    let whclient = await interaction.channel.createWebhook({
+        name: "@someone webhook",
+        reason: `Webhook to run @someone through`,
+    }).catch(err => {
+        return false;
+    });
+    if(!whclient || !(whclient instanceof WebhookClient)) {
+        return false;
+    }
+    await whclient.send({
+        username: usr.username,
+        avatarURL: usr.avatar ?? usr.defaultAvatarURL,
+        content: content
+    })
+    await prisma.channel.upsert({
+        where: {
+            channelid: interaction.channelId
+        },
+        update: {
+            webhook: whclient.url
+        },
+        create: {
+            channelid: interaction.channelId,
+            guild: interaction.guildId ?? "",
+            webhook: whclient.url
+        }
+    });
+    return true;
 }
 
 export function userCount(msg: Message): Promise<number> | undefined {
@@ -124,17 +183,6 @@ export function getElementByProperty(array: PingCooldownUserStats[], targetID: k
     }
 
     return -1;
-}
-
-export function removeFromArray<T>(array: T[], target: T): T[] {
-    const newArray: T[] = [];
-    array.forEach((element) => {
-        if (element !== target) {
-            newArray.push(element);
-        }
-    });
-
-    return newArray;
 }
 
 export function formatTime(num: number): string {
