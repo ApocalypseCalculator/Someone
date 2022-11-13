@@ -1,6 +1,6 @@
 import { Message, EmbedBuilder, ChannelType } from 'discord.js';
 import { config } from '../assets/config';
-import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, usedPing } from '../assets/functions';
+import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../assets/functions';
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
 
@@ -54,33 +54,18 @@ export = {
 
                         if (msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
                             try {
-                                const webhook = await msg.channel.createWebhook({
-                                    name: msg.member?.displayName as string,
-                                    avatar: msg.author.avatarURL() || 'https://cdn.discordapp.com/attachments/793653928159608843/882819198907215892/upload.jpg',
-                                    reason: `Random someone ping requested by ${msg.author.tag} (${msg.author.id})`,
-                                });
-
                                 if (config.logging) {
                                     console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                                 }
 
                                 const randID = await getRandomUserID(msg);
-
-                                if (msg.content.includes(`<@!${self.user?.id}>`)) {
-                                    webhook.send(msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`));
-                                } else {
-                                    webhook.send(msg.content.replace(`<@${self.user?.id}>`, `<@!${randID}>`));
-                                }
-
-                                addToLeaderboard(randID);
-
-                                msg.delete();
-
+                                await sendWebhook(msg, msg.author, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
+                                
+                                await addToLeaderboard(randID);
                                 await usedPing(msg.author.id);
-
-                                return setTimeout(() => {
-                                    webhook.delete();
-                                }, 1000);
+                                await msg.delete().catch(() => {
+                                    msg.channel.send('Unable to delete message');
+                                })
                             } catch (error) {
                                 console.log(error);
                                 return msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');

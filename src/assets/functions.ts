@@ -25,7 +25,7 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
     return id;
 }
 
-export async function sendWebhook(interaction: CommandInteraction, usr: User, content: string): Promise<boolean> {
+export async function sendWebhook(interaction: Message | CommandInteraction, usr: User, content: string): Promise<boolean> {
     let channel = await prisma.channel.findUnique({
         where: {
             channelid: interaction.channelId
@@ -50,7 +50,7 @@ export async function sendWebhook(interaction: CommandInteraction, usr: User, co
     }
 }
 
-async function sendNewWebhook(interaction: CommandInteraction, usr: User, content: string): Promise<boolean> {
+async function sendNewWebhook(interaction: Message | CommandInteraction, usr: User, content: string): Promise<boolean> {
     if (!(interaction.channel instanceof TextChannel)) {
         return false;
     }
