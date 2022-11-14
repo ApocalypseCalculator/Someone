@@ -18,9 +18,9 @@ export = {
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
             .setColor('Green');
 
-        try {
-            await interaction.reply({content: 'Working...', ephemeral: true});
+        await interaction.reply({ content: 'Working...', ephemeral: true });
 
+        try {
             let cpu = await system.cpu();
             let mem = await system.mem();
             let os = await system.osInfo();
@@ -33,7 +33,7 @@ export = {
             return interaction.editReply({ embeds: [embed], content: "" });
         } catch (err) {
             console.log(err);
-            return interaction.reply('Error occurred');
+            return interaction.editReply({ content: 'Error occurred' });
         }
     },
 } as SlashCommand;
