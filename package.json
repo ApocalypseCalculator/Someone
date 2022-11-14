@@ -2,7 +2,7 @@
   "name": "someone",
   "version": "3.0.0",
   "description": "Someone bot for Discord. Brings back Discord's 2018 April Fools joke.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon src/index.ts"

@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es2019",
+        "outDir": "./dist",
+        "target": "ESNext",
         "module": "commonjs",
         "strict": true,
         "noImplicitAny": true,
@@ -18,4 +19,7 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
     },
+    "include": [
+        "src"
+    ]
 }

@@ -21,7 +21,10 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
     const index = Math.round((amount - 1) * Math.random());
     const id = members[index];
 
-    console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
+    if(config.logging) {
+        console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
+    }
+    
     return id;
 }
 
