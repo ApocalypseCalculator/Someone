@@ -9,36 +9,31 @@ export = {
     description: 'Checks the bot\'s host system info.',
     global: true,
     execute: async (interaction) => {
-        if(config.hostID !== interaction.user.id) {
+        if (config.hostID !== interaction.user.id) {
             return interaction.reply({ content: 'not authorized', ephemeral: true });
         }
 
+        const embed = new EmbedBuilder()
+            .setTitle('System Stats')
+            .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
+            .setColor('Green');
+
         try {
-            const embed = new EmbedBuilder()
-                .setTitle('System Stats')
-                .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
-                .setColor('Green');
+            await interaction.reply({content: 'Working...', ephemeral: true});
 
-            try {
-                return await system.osInfo((os) => {
-                    system.processes((processes) => {
-                        embed.addFields({ name: 'Basic Information', value: `Uptime: ${formatTime(Number(system.time().uptime))}\nTimezone: ${system.time().timezone}\nOperating System: ${os.distro} ${os.release} ${os.arch}\nCurrent Processes: ${processes.list.length}`, inline: true });
+            let cpu = await system.cpu();
+            let mem = await system.mem();
+            let os = await system.osInfo();
+            let processes = await system.processes();
 
-                        system.cpu().then((data) => {
-                            embed.addFields({ name: 'CPU', value: `Name: ${data.manufacturer} ${data.brand}\nStepping ${data.stepping}\nProcessors: ${data.processors}\nCores: ${data.cores}\nCurrent Speed: ${data.speed}\n\nCurrent Cache (L1D, L1I, L2, L3): \n${data.cache.l1d}, ${data.cache.l1i}, ${data.cache.l2}, ${data.cache.l3}`, inline: true });
+            embed.addFields({ name: 'Basic Information', value: `Uptime: ${formatTime(Number(system.time().uptime))}\nTimezone: ${system.time().timezone}\nOperating System: ${os.distro} ${os.release} ${os.arch}\nCurrent Processes: ${processes.list.length}`, inline: true });
+            embed.addFields({ name: 'CPU', value: `Name: ${cpu.manufacturer} ${cpu.brand}\nStepping ${cpu.stepping}\nProcessors: ${cpu.processors}\nCores: ${cpu.cores}\nCurrent Speed: ${cpu.speed}GHz\n\nCurrent Cache (L1D, L1I, L2, L3): \n${cpu.cache.l1d}, ${cpu.cache.l1i}, ${cpu.cache.l2}, ${cpu.cache.l3}`, inline: true });
+            embed.addFields({ name: 'Memory', value: `Total: ${Math.round(mem.total / (1024 * 1024 * 1024) * 100) / 100}GB\nFree: ${Math.round(mem.free / (1024 * 1024 * 1024) * 100) / 100}GB\nUsed: ${Math.round(mem.used / (1024 * 1024 * 1024) * 100) / 100}GB\nBuffered Cache: ${Math.round(mem.buffcache / (1024 * 1024) * 100) / 100}MB`, inline: true });
 
-                            system.mem().then((mem) => {
-                                embed.addFields({ name: 'Memory', value: `Total: ${Math.round(mem.total / (1024 * 1024 * 1024) * 100) / 100}GB\nFree: ${Math.round(mem.free / (1024 * 1024 * 1024) * 100) / 100}GB\nUsed: ${Math.round(mem.used / (1024 * 1024 * 1024) * 100) / 100}GB\nBuffered Cache: ${Math.round(mem.buffcache / (1024 * 1024) * 100) / 100}MB`, inline: true });
-                                return interaction.reply({ embeds: [embed] });
-                            });
-                        });
-                    });
-                });
-            } catch {
-                return interaction.reply('Error occurred');
-            }
-        } catch {
-            return interaction.reply('System information dependency not installed');
+            return interaction.editReply({ embeds: [embed], content: "" });
+        } catch (err) {
+            console.log(err);
+            return interaction.reply('Error occurred');
         }
     },
 } as SlashCommand;

@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+import { config } from '../assets/config';
+
 import { EventHandler, SlashCommand } from '../typings/bot';
 import { Someone } from '..';
 import { ActivityType } from 'discord.js';
@@ -17,22 +19,24 @@ export = {
 			for(const file of slash_command_files) {
 				const command: SlashCommand = require(path.join(process.cwd(), 'src', 'slashCommands', `${file}`));
 
-				if(command.global === true) {
-					const data = {
-						name: command.name,
-						description: command.description,
-						options: command.options,
-					};
-
-					await self.application?.commands.create(data);
-				} else {
-					const data = {
-						name: command.name,
-						description: command.description,
-						options: command.options,
-					};
-
-					await self.guilds.cache.get(guild_id)?.commands.create(data);
+				if(config.registercmds) {
+					if(command.global === true) {
+						const data = {
+							name: command.name,
+							description: command.description,
+							options: command.options,
+						};
+	
+						await self.application?.commands.create(data);
+					} else {
+						const data = {
+							name: command.name,
+							description: command.description,
+							options: command.options,
+						};
+	
+						await self.guilds.cache.get(guild_id)?.commands.create(data);
+					}
 				}
 
 				self.slashcommands.set(command.name, command);

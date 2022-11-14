@@ -1,5 +1,5 @@
 import { SlashCommand } from '../typings/bot';
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType, ChannelType } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -20,6 +20,9 @@ export = {
 
         const channel = interaction.options.get('channel', true).channel;
         if (channel) {
+            if (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildForum && channel.type !== ChannelType.PrivateThread && channel.type !== ChannelType.PublicThread) {
+                return interaction.reply(`Invalid channel`);
+            }
             let chnldata = await prisma.channel.findUnique({
                 where: {
                     channelid: channel.id

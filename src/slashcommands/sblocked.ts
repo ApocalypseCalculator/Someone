@@ -11,7 +11,8 @@ export = {
         let blocked = '';
         let chnllist = await prisma.channel.findMany({
             where: {
-                guild: interaction.guildId ?? "-1"
+                guild: interaction.guildId ?? "-1",
+                blocked: true
             }
         });
 

@@ -25,16 +25,17 @@ export = {
                 }
             }
         );
-        const list = querylist.filter((user) => interaction.guild?.members.cache.get(user.discordid));
+        let allmembers = await interaction.guild?.members.fetch();
+        const list = querylist.filter((user) => allmembers?.has(user.discordid));
         for(let i = 0; i < ((list.length < 10) ? list.length : 10); i++) {
             if(i === 0) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥇<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥇<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else if(i === 1) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥈<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥈<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else if(i === 2) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥉<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥉<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🏅<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🏅<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             }
         }
 

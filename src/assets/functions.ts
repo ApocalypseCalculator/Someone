@@ -1,5 +1,5 @@
 import { config } from './config';
-import { ChannelType, CommandInteraction, Message, Snowflake, TextChannel, User, WebhookClient } from 'discord.js';
+import { ChannelType, CommandInteraction, Message, Snowflake, TextChannel, User, Webhook, WebhookClient } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -38,9 +38,10 @@ export async function sendWebhook(interaction: Message | CommandInteraction, usr
         });
         await whclient.send({
             username: usr.username,
-            avatarURL: usr.avatar ?? usr.defaultAvatarURL,
+            avatarURL: usr.displayAvatarURL() ?? usr.defaultAvatarURL,
             content: content
-        }).catch(async () => {
+        }).catch(async (err) => {
+            console.log(err);
             return await sendNewWebhook(interaction, usr, content);
         });
         return true;
@@ -60,12 +61,12 @@ async function sendNewWebhook(interaction: Message | CommandInteraction, usr: Us
     }).catch(err => {
         return false;
     });
-    if (!whclient || !(whclient instanceof WebhookClient)) {
+    if (!whclient || !(whclient instanceof Webhook)) {
         return false;
     }
     await whclient.send({
         username: usr.username,
-        avatarURL: usr.avatar ?? usr.defaultAvatarURL,
+        avatarURL: usr.avatarURL() ?? usr.defaultAvatarURL,
         content: content
     })
     await prisma.channel.upsert({
@@ -129,10 +130,10 @@ export async function isDisabled(id: Snowflake): Promise<boolean> {
         }
     });
     if (chnldata && chnldata.blocked) { //directly returning this makes typescript error
-        return false;
+        return true;
     }
     else {
-        return true;
+        return false;
     }
 }
 

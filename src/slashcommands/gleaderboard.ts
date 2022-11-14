@@ -23,21 +23,22 @@ export = {
                 pinged: 'desc'
             },
             take: 10
-        })
+        });
+        let total = await prisma.user.count();
 
         for (let i = 0; i < ((list.length < 10) ? list.length : 10); i++) {
             if (i === 0) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥇<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥇<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else if (i === 1) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥈<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥈<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else if (i === 2) {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🥉<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🥉<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             } else {
-                embed.addFields({ name: `#${(i + 1)}`, value: '🏅<@!' + list[list.length - i - 1].discordid + '> ' + ((list[list.length - i - 1].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[list.length - i - 1].pinged + ' pings' });
+                embed.addFields({ name: `#${(i + 1)}`, value: '🏅<@!' + list[i].discordid + '> ' + ((list[i].discordid === config.creatorID) ? '**(👑 bot creator)**' : '') + ': ' + list[i].pinged + ' pings' });
             }
         }
 
-        embed.addFields({ name: '\u200B', value: `Out of ${list.length} ranked users` });
+        embed.addFields({ name: '\u200B', value: `Out of ${total} ranked users` });
         embed.addFields({ name: '\u200B', value: '\u200B' });
 
         return interaction.reply({ embeds: [embed] });
