@@ -1,5 +1,5 @@
 import { config } from './config';
-import { ChannelType, CommandInteraction, Message, Snowflake, TextChannel, User, Webhook, WebhookClient } from 'discord.js';
+import { ChannelType, CommandInteraction, GuildMember, Message, Snowflake, TextChannel, User, Webhook, WebhookClient } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -21,14 +21,14 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
     const index = Math.round((amount - 1) * Math.random());
     const id = members[index];
 
-    if(config.logging) {
+    if (config.logging) {
         console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
     }
-    
+
     return id;
 }
 
-export async function sendWebhook(interaction: Message | CommandInteraction, usr: User, content: string): Promise<boolean> {
+export async function sendWebhook(interaction: Message | CommandInteraction, usr: GuildMember, content: string): Promise<boolean> {
     let channel = await prisma.channel.findUnique({
         where: {
             channelid: interaction.channelId
@@ -40,8 +40,8 @@ export async function sendWebhook(interaction: Message | CommandInteraction, usr
             url: channel.webhook
         });
         await whclient.send({
-            username: usr.username,
-            avatarURL: usr.displayAvatarURL() ?? usr.defaultAvatarURL,
+            username: usr.displayName,
+            avatarURL: usr.displayAvatarURL() ?? usr.user.defaultAvatarURL,
             content: content
         }).catch(async (err) => {
             console.log(err);
@@ -54,7 +54,7 @@ export async function sendWebhook(interaction: Message | CommandInteraction, usr
     }
 }
 
-async function sendNewWebhook(interaction: Message | CommandInteraction, usr: User, content: string): Promise<boolean> {
+async function sendNewWebhook(interaction: Message | CommandInteraction, usr: GuildMember, content: string): Promise<boolean> {
     if (!(interaction.channel instanceof TextChannel)) {
         return false;
     }
@@ -68,8 +68,8 @@ async function sendNewWebhook(interaction: Message | CommandInteraction, usr: Us
         return false;
     }
     await whclient.send({
-        username: usr.username,
-        avatarURL: usr.avatarURL() ?? usr.defaultAvatarURL,
+        username: usr.displayName,
+        avatarURL: usr.displayAvatarURL() ?? usr.user.defaultAvatarURL,
         content: content
     })
     await prisma.channel.upsert({

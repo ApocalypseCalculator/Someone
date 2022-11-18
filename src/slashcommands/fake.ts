@@ -23,7 +23,7 @@ export = {
             return interaction.reply('Ahem I will not ping in a fake message');
         } else {
             const fakemember = await getRandomUserID(interaction);
-            const faker = interaction.guild?.members.cache.get(fakemember)?.user;
+            const faker = interaction.guild?.members.cache.get(fakemember);
 
             try {
                 if (!(interaction.channel instanceof TextChannel) || !faker) {
