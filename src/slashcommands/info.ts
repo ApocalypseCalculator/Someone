@@ -12,7 +12,7 @@ export = {
             .setColor(13833)
             .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
             .setTitle('Information About Someone Bot')
-            .setDescription(`whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator (<@${config.creatorID}>). To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot.\n\nTip: random ping/fake msg users are logged inside server audit log, inside webhook creation reason`)
+            .setDescription(`whats up. I am the annoying pinger bot called Someone. Developed by ApocalypseCalculator (<@${config.creatorID}>). To use my annoying feature, simply ping me. These are the other commands of this wonderful Someone bot.`)
             .addFields([
                 {
                     name: '\u200B',
