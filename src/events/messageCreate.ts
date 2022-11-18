@@ -59,7 +59,7 @@ export = {
                                 }
 
                                 const randID = await getRandomUserID(msg);
-                                await sendWebhook(msg, msg.author, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
+                                await sendWebhook(msg, msg.member!, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
                                 
                                 await addToLeaderboard(randID);
                                 await usedPing(msg.author.id);
