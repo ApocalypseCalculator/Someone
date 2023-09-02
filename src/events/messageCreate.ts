@@ -4,12 +4,21 @@ import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, used
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
 
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
 export = {
     name: 'messageCreate',
     async callback(msg: Message) {
         const self = this as unknown as Someone;
 
-        if (msg.author.id === self.user?.id || msg.author.bot || msg.channel.type === ChannelType.DM) {
+        let curguild = await prisma.guild.findUnique({
+            where: {
+                guildid: msg.guildId ?? ""
+            }
+        });
+
+        if (msg.author.id === self.user?.id || (curguild ? (msg.author.bot && curguild.ignorebots) : msg.author.bot) || msg.channel.type === ChannelType.DM) {
             return;
         }
 
@@ -60,7 +69,7 @@ export = {
 
                                 const randID = await getRandomUserID(msg);
                                 await sendWebhook(msg, msg.member!, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
-                                
+
                                 await addToLeaderboard(randID);
                                 await usedPing(msg.author.id);
                                 await msg.delete().catch(() => {
