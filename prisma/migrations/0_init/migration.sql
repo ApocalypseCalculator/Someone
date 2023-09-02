@@ -29,3 +29,4 @@ CREATE TABLE "Error" (
     "discordid" TEXT NOT NULL,
     "command" TEXT NOT NULL
 );
+
