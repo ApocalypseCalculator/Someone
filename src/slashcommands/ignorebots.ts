@@ -27,7 +27,7 @@ export = {
                 ignorebots: ignore
             },
             create: {
-                guildid: '1',
+                guildid: interaction.guildId ?? "",
                 ignorebots: ignore
             }
         }).catch(() => {
