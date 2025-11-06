@@ -80,7 +80,7 @@ export = {
                                 return;
                             } catch (error) {
                                 console.log(error);
-                                return msg.channel.send('There was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+                                return msg.channel.send('Notice 11/05/2025: there is a 30 second ratelimit per server imposed by Discord (`/fake` contributes to this limit). Please avoid spamming while we work on a fix.\n\nThere was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
                             }
                         } else {
                             msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
