@@ -49,7 +49,9 @@ export = {
                     }
                 }
             } else {
-                const usrcount = await userCount(msg);
+                // temporary disable 
+                // TODO: refactor to conform to Discord's new ratelimit
+                const usrcount = 6; // await userCount(msg);
                 const disabled = await isDisabled(msg.channel.id);
                 if (!disabled) {
                     return msg.guild?.members.fetch(self.user).then(async (member) => {
