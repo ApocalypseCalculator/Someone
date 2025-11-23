@@ -15,13 +15,11 @@ When you mention the bot, it will randomly mention some other server member *who
 
 2. Clone this repository onto your PC (`git clone https://github.com/ApocalypseCalculator/Someone`).
 
-3. In the folder called `assets`, open the file called `token.ts`.
+3. Put your bot token inside a `.env` file.
 
-4. Inside the `token.ts` file, put your bot token inside the `""` and save the file.
+4. Before running, make sure you have installed the required dependencies by running `npm install` in the bot's root directory (npm should come with node, if it does not, seperately install npm).
 
-5. Before running, make sure you have installed the required dependencies by running `npm install` in the bot's root directory (npm should come with node, if it does not, seperately install npm).
-
-6. Go to your terminal, head to the root bot folder directory (`cd filepath`), and run the `npm run start` command.
+5. Go to your terminal, head to the root bot folder directory (`cd filepath`), and run the `npm run start` command.
 
 **The bot has been upgraded to comply with the newest Discord.js v14!**
 

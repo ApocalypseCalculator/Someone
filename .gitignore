@@ -3,3 +3,4 @@ data/
 *.db
 *.db-journal
 dist/
+.env

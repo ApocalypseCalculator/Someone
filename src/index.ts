@@ -1,8 +1,14 @@
+import 'dotenv/config'
+
+if(!process.env.TOKEN) {
+    console.error('No token provided in environment variables. Please set TOKEN to your bot\'s token.');
+    process.exit(1);
+}
+
 import fs from 'fs';
 import path from 'path';
 
 import { Client, Collection, GatewayIntentBits } from 'discord.js';
-import { token } from './assets/token';
 import { Command, EventHandler, SlashCommand } from './typings/bot';
 
 export class Someone extends Client {
@@ -37,4 +43,4 @@ function loadEvents() {
 
 loadEvents();
 
-client.login(token);
+client.login(process.env.TOKEN);
