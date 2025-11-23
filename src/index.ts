@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { Client, Collection } from 'discord.js';
+import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { token } from './assets/token';
 import { Command, EventHandler, SlashCommand } from './typings/bot';
 
@@ -11,7 +11,13 @@ export class Someone extends Client {
 
     constructor() {
         super({
-            intents: 2675, // most guild-related non-privileged intents + the GUILD_MEMBERS intent
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildWebhooks,
+                GatewayIntentBits.GuildIntegrations,
+            ], // most guild-related non-privileged intents + the GUILD_MEMBERS intent
         });
 
         this.commands = new Collection();
