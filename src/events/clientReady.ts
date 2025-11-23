@@ -8,7 +8,7 @@ import { Someone } from '..';
 import { ActivityType } from 'discord.js';
 
 export = {
-    name: 'ready',
+    name: 'clientReady',
     async callback() {
         const self = this as unknown as Someone;
         const guild_id = '711367944227258369'; // CHANGE WHEN MERGING INTO PROD BOT
