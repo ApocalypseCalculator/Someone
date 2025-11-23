@@ -1,6 +1,6 @@
-import { Message, EmbedBuilder, ChannelType } from 'discord.js';
+import { Message, EmbedBuilder, ChannelType, TextChannel } from 'discord.js';
 import { config } from '../assets/config';
-import { canPing, userCount, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../assets/functions';
+import { canPing, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../assets/functions';
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
 
@@ -18,7 +18,7 @@ export = {
             }
         });
 
-        if (msg.author.id === self.user?.id || (curguild ? (msg.author.bot && curguild.ignorebots) : msg.author.bot) || msg.channel.type === ChannelType.DM) {
+        if (msg.author.id === self.user?.id || (curguild ? (msg.author.bot && curguild.ignorebots) : msg.author.bot) || !(msg.channel instanceof TextChannel)) {
             return;
         }
 
@@ -49,54 +49,48 @@ export = {
                     }
                 }
             } else {
-                // temporary disable 
-                // TODO: refactor to conform to Discord's new ratelimit
-                const usrcount = 6; // await userCount(msg);
+                const { id: randID, count: usrcount } = await getRandomUserID(msg);
                 const disabled = await isDisabled(msg.channel.id);
                 if (!disabled) {
-                    return msg.guild?.members.fetch(self.user).then(async (member) => {
-                        if (!usrcount || usrcount <= 5) {
-                            return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
-                        }
+                    let member = await msg.guild?.members.fetch(self.user);
 
-                        if (msg.member?.displayName.includes('clyde')) {
-                            return msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
-                        }
+                    if (!member) return;
+                    if (!usrcount || usrcount <= 5) {
+                        return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
+                    }
 
-                        if (msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
-                            try {
-                                if (config.logging) {
-                                    console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
-                                }
+                    if (msg.member?.displayName.includes('clyde')) {
+                        return msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
+                    }
 
-                                const randID = await getRandomUserID(msg);
-                                await sendWebhook(msg, msg.member!, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
-
-                                await addToLeaderboard(randID);
-                                await usedPing(msg.author.id);
-                                await msg.delete().catch(() => {
-                                    msg.channel.send('Unable to delete message');
-                                })
-                                return;
-                            } catch (error) {
-                                console.log(error);
-                                return msg.channel.send('Notice 11/05/2025: there is a 30 second ratelimit per server imposed by Discord (`/fake` contributes to this limit). Please avoid spamming while we work on a fix.\n\nThere was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
+                    if (msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
+                        try {
+                            if (config.logging) {
+                                console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
                             }
-                        } else {
-                            msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
-                            const embed = new EmbedBuilder()
-                                .setColor(13833)
-                                .setAuthor({ name: self.user?.username ?? 'Someone', iconURL: self.user?.avatarURL() ?? '' })
-                                .setTitle('Permissions Demo')
-                                .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
-                                .setTimestamp()
-                                .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: self.user?.avatarURL() ?? '' });
 
-                            return msg.channel.send({ embeds: [embed] });
+                            await sendWebhook(msg, msg.member!, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
+
+                            await addToLeaderboard(randID);
+                            await usedPing(msg.author.id);
+                            await msg.delete();
+                            return;
+                        } catch (error) {
+                            console.log(error);
+                            return msg.channel.send('Notice 11/05/2025: there is a 30 second ratelimit per server imposed by Discord (`/fake` contributes to this limit). Please avoid spamming while we work on a fix.\n\nThere was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
                         }
-                    }).catch(error => {
-                        return console.log(error);
-                    });
+                    } else {
+                        msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
+                        const embed = new EmbedBuilder()
+                            .setColor(13833)
+                            .setAuthor({ name: self.user?.username ?? 'Someone', iconURL: self.user?.avatarURL() ?? '' })
+                            .setTitle('Permissions Demo')
+                            .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
+                            .setTimestamp()
+                            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: self.user?.avatarURL() ?? '' });
+
+                        return msg.channel.send({ embeds: [embed] });
+                    }
                 } else {
                     return msg.channel.send('Channel is disabled from @someone :(');
                 }

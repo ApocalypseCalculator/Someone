@@ -22,7 +22,7 @@ export = {
         if (/@everyone/.test(message) || /<@!?&[0,9]{18}>/.test(message)) {
             return interaction.reply('Ahem I will not ping in a fake message');
         } else {
-            const fakemember = await getRandomUserID(interaction);
+            const {id: fakemember} = await getRandomUserID(interaction);
             const faker = interaction.guild?.members.cache.get(fakemember);
 
             try {
