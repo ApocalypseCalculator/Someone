@@ -1,17 +1,52 @@
 import { config } from './config';
-import { ChannelType, CommandInteraction, GuildMember, Message, Snowflake, TextChannel, User, Webhook, WebhookClient } from 'discord.js';
+import { CommandInteraction, Guild, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-export async function getRandomUserID(msg: Message | CommandInteraction): Promise<string> {
+/*
+throttle "all members" fetches to once per 30 minutes, returns true if a hard fetch occurred
+downstream consumers should use member cache after calling this
+*/
+export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
+    let guilddata = await prisma.guild.findUnique({
+        where: {
+            guildid: guild.id
+        }
+    });
+    if(guilddata && guilddata.lastmemberfetch > Date.now() - 30 * 60 * 1000) {
+        return false;
+    }
+    await guild.members.fetch();
+    await prisma.guild.upsert({
+        where: {
+            guildid: guild.id
+        },
+        update: {
+            lastmemberfetch: Date.now()
+        },
+        create: {
+            guildid: guild.id,
+            lastmemberfetch: Date.now()
+        }
+    });
+    return true;
+}
+
+export async function getRandomUserID(msg: Message | CommandInteraction): Promise<{id: string, count: number}> {
     const server = msg.guild;
+    if(!server) {
+        return {
+            id: "",
+            count: 0
+        }
+    }
     const members: Snowflake[] = [];
     let amount = 0;
 
-    await server?.members.fetch();
-    server?.members.cache.forEach((member, key) => {
+    await throttledAllMembersFetch(server);
+    server.members.cache.forEach((member, key) => {
         if (!member.user.bot && member !== msg.member) {
-            if (msg.channel?.type !== ChannelType.DM && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
+            if (msg.channel instanceof TextChannel && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
                 members.push(key);
                 amount++;
             }
@@ -25,7 +60,10 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
         console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
     }
 
-    return id;
+    return {
+        id: id,
+        count: amount
+    };
 }
 
 export async function sendWebhook(interaction: Message | CommandInteraction, usr: GuildMember, content: string): Promise<boolean> {
@@ -86,26 +124,6 @@ async function sendNewWebhook(interaction: Message | CommandInteraction, usr: Gu
         }
     });
     return true;
-}
-
-export function userCount(msg: Message): Promise<number> | undefined {
-    const memberArray: Snowflake[] = [];
-    let amount = 0;
-
-    return msg.guild?.members.fetch().then(members => {
-        members.forEach((member, key) => {
-            if (!member.user.bot && member != msg.member) {
-                if (msg.channel.type !== ChannelType.DM && msg.channel.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
-                    memberArray.push(key);
-                    amount++;
-                }
-            }
-        });
-
-        return amount;
-    }).catch(() => {
-        return 0;
-    });
 }
 
 export async function addToLeaderboard(id: Snowflake): Promise<void> {
