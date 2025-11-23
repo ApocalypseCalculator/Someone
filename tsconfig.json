@@ -1,15 +1,9 @@
 {
     "compilerOptions": {
         "outDir": "./dist",
-        "target": "ESNext",
+        "target": "es6",
         "module": "commonjs",
         "strict": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "strictBindCallApply": true,
-        "strictPropertyInitialization": true,
-        "noImplicitThis": true,
         "alwaysStrict": true,
         "noImplicitReturns": true,
         "moduleResolution": "node",
