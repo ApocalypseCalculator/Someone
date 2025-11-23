@@ -23,6 +23,9 @@ export = {
             if (!command) {
                 return;
             }
+            else if (!interaction.isChatInputCommand() || !interaction.guild) {
+                return interaction.reply('This command can only be used as a context menu command in a server');
+            }
 
             return await command.execute(interaction, self);
         } catch (err) {
