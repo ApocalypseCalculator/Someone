@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js';
+import { TextChannel, MessageFlags } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 
 export = {
@@ -11,7 +11,7 @@ export = {
         }
 
         if(!interaction?.memberPermissions?.has('ManageWebhooks')) {
-            return interaction.reply({ content: 'not authorized', ephemeral: true });
+            return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
 
         interaction.channel.fetchWebhooks().then((hooks) => {

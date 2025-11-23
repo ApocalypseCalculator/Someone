@@ -1,6 +1,6 @@
 import { SlashCommand } from '../typings/bot';
 import { config } from '../assets/config';
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType, MessageFlags } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -16,7 +16,7 @@ export = {
     }],
     execute: async (interaction) => {
         if (config.hostID !== interaction.user.id) {
-            return interaction.reply({ content: 'not authorized', ephemeral: true });
+            return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
 
         const errid = interaction.options.get('id', true).value;

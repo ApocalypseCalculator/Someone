@@ -1,4 +1,4 @@
-import { EmbedBuilder } from 'discord.js';
+import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import { config } from '../assets/config';
 import { formatTime } from '../assets/functions';
@@ -10,7 +10,7 @@ export = {
     global: true,
     execute: async (interaction) => {
         if (config.hostID !== interaction.user.id) {
-            return interaction.reply({ content: 'not authorized', ephemeral: true });
+            return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
 
         const embed = new EmbedBuilder()
@@ -18,7 +18,7 @@ export = {
             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() ?? '' })
             .setColor('Green');
 
-        await interaction.reply({ content: 'Working...', ephemeral: true });
+        await interaction.reply({ content: 'Working...', flags: MessageFlags.Ephemeral });
 
         try {
             let cpu = await system.cpu();

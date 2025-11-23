@@ -1,5 +1,5 @@
 import { SlashCommand } from '../typings/bot';
-import { ApplicationCommandOptionType, ChannelType } from 'discord.js';
+import { ApplicationCommandOptionType, ChannelType, MessageFlags } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
@@ -15,7 +15,7 @@ export = {
     }],
     execute: async (interaction) => {
         if (!interaction.memberPermissions?.has('Administrator', true)) {
-            return interaction.reply({ content: 'not authorized', ephemeral: true });
+            return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
 
         const channel = interaction.options.getChannel('channel', true);

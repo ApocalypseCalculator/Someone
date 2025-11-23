@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, TextChannel } from 'discord.js';
+import { ApplicationCommandOptionType, TextChannel, MessageFlags } from 'discord.js';
 import { config } from '../assets/config';
 import { getRandomUserID, sendWebhook } from '../assets/functions';
 import { SlashCommand } from '../typings/bot';
@@ -33,7 +33,7 @@ export = {
                 let success = await sendWebhook(interaction, faker, message)
 
                 if (success) {
-                    return interaction.reply({ content: 'Your fake message was sent!', ephemeral: true });
+                    return interaction.reply({ content: 'Your fake message was sent!', flags: MessageFlags.Ephemeral });
                 }
                 else {
                     return interaction.reply(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
