@@ -1,6 +1,7 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { ApplicationCommandOptionType } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import prisma from '../lib/db'
+import createBaseEmbed from '../lib/embed';
 
 export = {
     name: 'pingcount',
@@ -13,14 +14,12 @@ export = {
         required: true,
     }],
     execute: async (interaction, client) => {
-        const embed = new EmbedBuilder()
-            .setColor(13833)
-            .setAuthor({ name: client?.user?.username ?? '', iconURL: client?.user?.avatarURL() ?? '' })
-            .addFields({ name: '\u200B', value: '\u200B' })
-            .setTimestamp()
-            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
-
-        embed.setTitle(`Recorded Pings Received By ${interaction.options.getUser('user', true).username}`);
+        await interaction.deferReply();
+        const embed = createBaseEmbed(
+            client,
+            `Ping Count`,
+            `<@!${interaction.options.getUser('user', true).id}> has 0 received pings through @someone`
+        );
 
         let usr = await prisma.user.findUnique({
             where: {
@@ -28,15 +27,9 @@ export = {
             }
         })
 
-        if (!usr) {
-            embed.addFields({ name: 'Ping Count', value: `<@!${interaction.options.getUser('user', true).id}> has 0 received pings through this bot` });
-            embed.addFields({ name: '\u200B', value: '\u200B' });
-            return interaction.reply({ embeds: [embed] });
+        if (usr) {
+            embed.setDescription(`<@!${interaction.options.getUser('user', true).id}> has ${usr.pinged} received ping${(usr.pinged == 1) ? '' : 's'} through @someone`);
         }
-        else {
-            embed.addFields({ name: 'Ping Count', value: `<@!${interaction.options.getUser('user', true).id}> has ${usr.pinged} received ping${(usr.pinged == 1) ? '' : 's'} through this bot` });
-            embed.addFields({ name: '\u200B', value: '\u200B' });
-            return interaction.reply({ embeds: [embed] });
-        }
+        return interaction.followUp({ embeds: [embed] });
     },
 } as SlashCommand;
