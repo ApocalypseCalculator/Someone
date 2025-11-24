@@ -1,4 +1,3 @@
-import { config } from '../config';
 import { SlashCommand } from '../typings/bot';
 import { throttledAllMembersFetch } from '../lib/functions';
 import prisma from '../lib/db';
