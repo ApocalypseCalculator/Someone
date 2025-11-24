@@ -1,15 +1,24 @@
-import { Message, EmbedBuilder, ChannelType, TextChannel } from 'discord.js';
-import { config } from '../config';
-import { canPing, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../lib/functions';
+import { Message, ChannelType, TextChannel } from 'discord.js';
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
+import createBaseEmbed from '../lib/embed';
 
 import prisma from '../lib/db'
+import pingSomeone from '../lib/ping';
 
+/*
+note: the bot should not enable the Message Content gateway intent,
+if the intent is off, the bot only receives gateway events for 
+messages mentioning the bot, which is the desired behavior for @someone 
+(unless the bot is in < 100 servers)
+*/
 export = {
     name: 'messageCreate',
     async callback(msg: Message) {
         const self = this as unknown as Someone;
+        if (!self.user || !msg.mentions.has(self.user)) {
+            return;
+        }
 
         let curguild = await prisma.guild.findUnique({
             where: {
@@ -21,84 +30,36 @@ export = {
             return;
         }
 
-        if (!self.user) {
+        let member = await msg.guild?.members.fetch(self.user.id);
+        if (!member) return msg.channel.send('Error fetching member data.');
+
+        if (msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
+            await pingSomeone(
+                self,
+                msg.author.id,
+                msg.content,
+                msg,
+                msg.guild!,
+                async (error: string) => {
+                    if (msg.channel.type === ChannelType.GuildText) {
+                        await msg.channel.send(error);
+                    }
+                    return;
+                },
+                async () => {
+                    await msg.delete();
+                }
+            )
             return;
-        }
+        } else {
+            const embed = createBaseEmbed(
+                self,
+                'Insufficient Permissions',
+                'Please either grant me admin or give me both manage webhooks and manage messages'
+            ).setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
+            // hardcoded demo gif
 
-        let canping = await canPing(msg.author.id);
-        if (msg.mentions.members?.has(self.user.id) && !canping) {
-            return msg.reply('calm down with the pings dude. (1 minute cooldown)');
-        }
-
-        if (msg.mentions.members?.has(self.user.id) && !msg.content.includes('\\<@')) {
-            if (msg.content.includes('@everyone') || msg.content.includes('@here') || msg.mentions.roles.size > 0) {
-                if (!msg.member?.permissions.has('MentionEveryone')) {
-                    msg.channel.send('I see what you\'re doing, and I don\'t like it');
-                    if (config.logging) {
-                        return console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
-                    } else {
-                        return;
-                    }
-                } else {
-                    msg.channel.send('I\'m going to give everyone 1 less ping by not repeating that with a Someone ping. tyvm');
-                    if (config.logging) {
-                        return console.log(`Attempted ping by: ${msg.author.username}\tContent: ${msg.content}`);
-                    } else {
-                        return;
-                    }
-                }
-            } else {
-                const { id: randID, count: usrcount } = await getRandomUserID(msg);
-                const disabled = await isDisabled(msg.channel.id);
-                if (!disabled) {
-                    let member = await msg.guild?.members.fetch(self.user);
-
-                    if (!member) return;
-                    if (!usrcount || usrcount <= 5) {
-                        return msg.channel.send('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
-                    }
-
-                    if (msg.member?.displayName.includes('clyde')) {
-                        return msg.channel.send('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
-                    }
-
-                    if (msg.channel.type === ChannelType.GuildText && (member.permissions.has('Administrator') || (member.permissions.has('ManageWebhooks') && member.permissions.has('ManageMessages')))) {
-                        try {
-                            if (config.logging) {
-                                console.log(`Pinger: ${msg.author.username} (${msg.author.id})\tContent: ${msg.content.replace(`<@!${self.user?.id}>`, '(bot ping)')}`);
-                            }
-
-                            await sendWebhook(msg, msg.member!, msg.content.replace(`<@!${self.user?.id}>`, `<@!${randID}>`).replace(`<@${self.user?.id}>`, `<@!${randID}>`));
-
-                            await addToLeaderboard(randID);
-                            await usedPing(msg.author.id);
-                            await msg.delete();
-                            return;
-                        } catch (error) {
-                            console.log(error);
-                            return msg.channel.send('Notice 11/05/2025: there is a 30 second ratelimit per server imposed by Discord (`/fake` contributes to this limit). Please avoid spamming while we work on a fix.\n\nThere was an error with performing the random ping. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact <@492079026089885708> if this problem persists');
-                        }
-                    } else {
-                        msg.channel.send('Insufficient permissions. Please either grant me admin or give me both manage webhooks and manage messages');
-                        const embed = new EmbedBuilder()
-                            .setColor(13833)
-                            .setAuthor({ name: self.user?.username ?? 'Someone', iconURL: self.user?.avatarURL() ?? '' })
-                            .setTitle('Permissions Demo')
-                            .setImage('https://cdn.discordapp.com/attachments/711370772114833520/711620022669148180/demo3.gif')
-                            .setTimestamp()
-                            .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: self.user?.avatarURL() ?? '' });
-
-                        return msg.channel.send({ embeds: [embed] });
-                    }
-                } else {
-                    return msg.channel.send('Channel is disabled from @someone :(');
-                }
-            }
-        }
-
-        if (msg.mentions.members?.has(self.user.id)) {
-            msg.channel.send('I see what you are doing, and I don\'t like it');
-            return console.log(`${msg.author.username}\t(failed ping)\t: ${msg.content}`);
+            return msg.channel.send({ embeds: [embed] });
         }
     },
 } as EventHandler;
