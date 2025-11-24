@@ -10,7 +10,10 @@ export = {
         const embed = createBaseEmbed(
             client,
             'Information About Someone Bot',
-            `whats up. I am the annoying pinger bot called Someone. To @someone, simply ping me. `
+            "whats up. I am the annoying pinger bot called Someone. " +
+            "To @someone, simply ping me. " +
+            "I will select a random user in your current channel and replace your message with a ping. " +
+            "You can ping me multiple times in one message to @someone multiple people."
         ).addFields([
             {
                 name: 'Version',
