@@ -17,7 +17,7 @@ model Guild {
     guildid              String               @id
     ignorebots           Boolean              @default(true)
     lastmemberfetch      DateTime             @default(now())
-    djs_members_uncached Boolean              @default(true)
+    djs_members_uncached Boolean              @default(false)
     memberscache         MemberByGuildCache[]
 }
 
