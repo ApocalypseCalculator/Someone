@@ -5,7 +5,6 @@ import prisma from '../lib/db'
 export = {
     name: 'ignorebots',
     description: 'Make @someone ignore bots (or not)',
-    global: true,
     options: [{
         name: 'ignore',
         type: ApplicationCommandOptionType.Boolean,

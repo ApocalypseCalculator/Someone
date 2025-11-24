@@ -6,7 +6,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'random',
     description: 'Fetches random members from the server.',
-    global: true,
     options: [{
         name: 'amount',
         description: 'How many members to fetch.',

@@ -5,7 +5,6 @@ import prisma from '../lib/db'
 export = {
     name: 'block',
     description: 'Blocks a channel from using the bot.',
-    global: true,
     options: [{
         name: 'channel',
         type: ApplicationCommandOptionType.Channel,

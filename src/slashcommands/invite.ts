@@ -4,7 +4,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'invite',
     description: 'How to invite the bot.',
-    global: true,
     execute: (interaction, client) => {
         return interaction.reply({
             embeds: [createBaseEmbed(

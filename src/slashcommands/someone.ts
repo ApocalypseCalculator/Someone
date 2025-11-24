@@ -5,7 +5,6 @@ import pingSomeone from '../lib/ping';
 export = {
     name: 'someone',
     description: 'Sends a message with @someone ping prepended.',
-    global: false,
     options: [{
         name: 'message',
         description: 'The message to send.',

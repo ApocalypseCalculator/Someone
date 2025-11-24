@@ -5,7 +5,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'sblocked',
     description: 'Shows all blocked channels in this server.',
-    global: true,
     execute: async (interaction, client) => {
         await interaction.deferReply();
         let chnllist = await prisma.channel.findMany({

@@ -6,7 +6,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'pingcount',
     description: 'Shows number of pings received for a user.',
-    global: true,
     options: [{
         name: 'user',
         description: 'The user to check.',

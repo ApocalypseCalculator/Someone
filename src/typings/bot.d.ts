@@ -26,10 +26,6 @@ export interface SlashCommand {
      */
     description: string;
     /**
-     * Is the command global, or for a specific guild only?
-     */
-    global: boolean;
-    /**
      * The slash command options.
      */
     options: ApplicationCommandOptionData[];

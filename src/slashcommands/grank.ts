@@ -6,7 +6,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'grank',
     description: 'Shows a user\'s global ping rank.',
-    global: true,
     options: [{
         name: 'user',
         description: 'The user to check.',

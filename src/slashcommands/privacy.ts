@@ -4,7 +4,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'privacy',
     description: 'Shows the bot\'s privacy policy.',
-    global: true,
     execute: (interaction, client) => {
         return interaction.reply({ embeds: [
             createBaseEmbed(

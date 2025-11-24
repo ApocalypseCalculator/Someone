@@ -6,7 +6,6 @@ import createBaseEmbed from '../lib/embed';
 export = {
     name: 'info',
     description: 'Gets info about the bot.',
-    global: true,
     execute: (interaction, client) => {
         const embed = createBaseEmbed(
             client,

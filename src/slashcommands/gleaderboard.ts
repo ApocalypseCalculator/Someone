@@ -5,7 +5,6 @@ import createBaseEmbed, { createLeaderboardEmbed } from '../lib/embed';
 export = {
     name: 'gleaderboard',
     description: 'A leaderboard of people who got pinged the most.',
-    global: true,
     execute: async (interaction, client) => {
         const embed = createBaseEmbed(
             client, 

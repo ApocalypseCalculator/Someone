@@ -6,7 +6,6 @@ import createBaseEmbed, { createLeaderboardEmbed } from '../lib/embed';
 export = {
     name: 'sleaderboard',
     description: 'Shows the server leaderboard for pings.',
-    global: true,
     execute: async (interaction, client) => {
         await interaction.deferReply();
         const embed = createBaseEmbed(

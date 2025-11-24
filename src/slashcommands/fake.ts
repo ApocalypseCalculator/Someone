@@ -5,7 +5,6 @@ import { SlashCommand } from '../typings/bot';
 export = {
     name: 'fake',
     description: 'Sends a fake message.',
-    global: true,
     options: [{
         name: 'message',
         description: 'The message to send.',
