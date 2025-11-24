@@ -1,11 +1,18 @@
 import { config } from '../config';
-import { CommandInteraction, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
+import { Channel, CommandInteraction, GuildMember, Message, Snowflake, TextBasedChannel, TextChannel, VoiceChannel, Webhook, WebhookClient } from 'discord.js';
 import prisma from '../lib/db'
 import { throttledAllMembersFetch } from './membercache';
 
-export async function getRandomUserID(msg: Message | CommandInteraction): Promise<{id: string, count: number}> {
+export async function getRandomUserID(
+    msg: Message | CommandInteraction,
+    includeself: boolean = false,
+    channel?: TextBasedChannel | VoiceChannel
+): Promise<{id: string, count: number}> {
     const server = msg.guild;
-    if(!server) {
+    if(!channel) {
+        channel = msg.channel!;
+    }
+    if(!server || !(channel instanceof TextChannel)) {
         return {
             id: "",
             count: 0
@@ -16,8 +23,9 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
 
     await throttledAllMembersFetch(server);
     server.members.cache.forEach((member, key) => {
-        if (!member.user.bot && member !== msg.member) {
-            if (msg.channel instanceof TextChannel && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
+        if (!member.user.bot && (member !== msg.member || includeself)) {
+            if (msg.channel instanceof TextChannel // note: redundant condition necessary for TypeScript
+                && channel.permissionsFor(member).has('ViewChannel') && channel.permissionsFor(member).has('ReadMessageHistory')) {
                 members.push(key);
                 amount++;
             }
@@ -28,7 +36,7 @@ export async function getRandomUserID(msg: Message | CommandInteraction): Promis
     const id = members[index];
 
     if (config.logging) {
-        console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
+        console.log(`Returned ID: ${id} out of ${amount}\tServer: ${msg.guild?.id}`);
     }
 
     return {

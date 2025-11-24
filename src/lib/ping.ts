@@ -11,7 +11,8 @@ export default async function pingSomeone(
     msg: Message | CommandInteraction,
     guild: Guild,
     failed_callback: (response: string) => Promise<void>,
-    send_callback: () => Promise<void>
+    send_callback: () => Promise<void>,
+    includeself: boolean = false
 ): Promise<void> {
     const PING_REGEX = new RegExp(`<@!?${client.user?.id}>`, 'g');
     // debugging
@@ -38,7 +39,7 @@ export default async function pingSomeone(
         return failed_callback('@someone is disabled in this channel :(');
     }
 
-    const { id: randID, count: usrcount } = await getRandomUserID(msg);
+    const { id: randID, count: usrcount } = await getRandomUserID(msg, includeself);
     let author_member = await guild.members.fetch(author);
     if (!author_member) {
         return failed_callback('unable to fetch member data');
@@ -59,7 +60,9 @@ export default async function pingSomeone(
         if (!success) {
             return failed_callback('There was an error sending the ping. This may be due to missing create webhook permissions.');
         }
-        await addToLeaderboard(randID);
+        if (randID !== author) {
+            await addToLeaderboard(randID);
+        }
         await usedPing(author);
         await send_callback();
         return;
