@@ -40,10 +40,12 @@ export default async function pingSomeone(
         return failed_callback('@someone is disabled in this channel :(');
     }
 
+    let ping_amt = Math.max(source.match(PING_REGEX)?.length ?? 1, 1);
+
     const { id: randID, count: usrcount } = await getRandomUserID(
-        msg, 
+        msg,
         includeself,
-        1,
+        ping_amt,
         false,
         msg.channel as any,
         role
@@ -52,11 +54,14 @@ export default async function pingSomeone(
     if (!author_member) {
         return failed_callback('unable to fetch member data');
     }
-    if (!usrcount || usrcount < 5) {
-        return failed_callback('Your selection has less than 5 non-bot users in this channel. To prevent spam pinging to gain rank, @someone is disabled');
+    if (!usrcount || usrcount <= 1) {
+        return failed_callback('Your selection has only 1 non-bot user in this channel.');
     }
     if (randID.length == 0) {
         return failed_callback('unable to get random user');
+    }
+    if (ping_amt > randID.length) {
+        return failed_callback(`you pinged me ${ping_amt} times, but there are only ${randID.length} random users available to ping!`);
     }
     if (author_member.displayName.includes('clyde')) {
         return failed_callback('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
@@ -66,14 +71,12 @@ export default async function pingSomeone(
         let success = await sendWebhook(
             msg,
             author_member,
-            source.replace(PING_REGEX, `<@${randID}>`)
+            replaceString(source, PING_REGEX, randID.map(id => `<@${id}>`))
         );
         if (!success) {
             return failed_callback('There was an error sending the ping. This may be due to missing create webhook permissions.');
         }
-        if (randID[0] !== author) {
-            await addToLeaderboard(randID[0]);
-        }
+        await Promise.all(randID.filter(id => id !== author).map(id => addToLeaderboard(id)));
         await usedPing(author);
         await send_callback();
         return;
@@ -86,4 +89,9 @@ export default async function pingSomeone(
 function hasPing(content: string) {
     // good regex trust
     return /<@!?&?\d{17,22}>/.test(content) || /@everyone/.test(content) || /@here/.test(content);
+}
+
+function replaceString(source: string, regex: RegExp, replace: string[]): string {
+    let idx = 0;
+    return source.replace(regex, () => replace[idx++] ?? "");
 }
