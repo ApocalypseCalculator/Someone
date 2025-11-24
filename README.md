@@ -11,7 +11,7 @@ When you mention the bot, it will randomly mention some other server member *who
 
 1. Clone this repository onto your PC (`git clone https://github.com/ApocalypseCalculator/Someone`) and run `npm run setup`. 
 
-2. Inside the `.env` file, input your bot token as `TOKEN`,  Prisma DB connection URL `DATABASE_URL`, and `REGISTER_CMDS`. If hosting for multiple servers, `REGISTER_CMDS="global"` (takes up to 30min), otherwise, `REGISTER_CMDS="guild"` (instant). `REGISTER_CMDS` can be removed after the first run registers the commands. 
+2. Inside the `.env` file, input your bot token as `TOKEN`,  Prisma DB connection URL `DATABASE_URL`, and `REGISTER_CMDS`. If hosting for multiple servers, `REGISTER_CMDS="global"` (takes up to 30min), otherwise, `REGISTER_CMDS="guild"` (instant). If using single-guild command, modify `src/config.ts`'s `mainGuild` to your guild ID. `REGISTER_CMDS` can be removed after the first run registers the commands. 
 
 3. Run `npm run start`, or you can compile with `tsc` and run the JS output
 
