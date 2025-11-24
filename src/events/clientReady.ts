@@ -11,11 +11,11 @@ export = {
     name: 'clientReady',
     async callback() {
         const self = this as unknown as Someone;
-        const guild_id = '711367944227258369'; // CHANGE WHEN MERGING INTO PROD BOT
 
 		try {
 			const slash_command_files = fs.readdirSync(path.join(process.cwd(), 'src', 'slashcommands'));
 
+			// todo: non-blocking command loading
 			for(const file of slash_command_files) {
 				const command: SlashCommand = require(path.join(process.cwd(), 'src', 'slashcommands', `${file}`));
 
@@ -35,7 +35,7 @@ export = {
 							options: command.options,
 						};
 	
-						await self.guilds.cache.get(guild_id)?.commands.create(data);
+						await self.guilds.cache.get(config.mainGuild)?.commands.create(data);
 					}
 				}
 
@@ -51,7 +51,7 @@ export = {
         self.user?.setPresence({
             activities: [{
                 type: ActivityType.Watching,
-                name: ' for /help',
+                name: '/help for help',
             }],
             status: 'online',
         });
