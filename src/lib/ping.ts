@@ -43,7 +43,7 @@ export default async function pingSomeone(
     if (!author_member) {
         return failed_callback('unable to fetch member data');
     }
-    if (!usrcount || usrcount <= 5) {
+    if (!usrcount || usrcount < 5) {
         return failed_callback('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
     }
     if (author_member.displayName.includes('clyde')) {
