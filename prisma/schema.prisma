@@ -8,16 +8,26 @@ datasource db {
 }
 
 model Channel {
-    channelid String  @id
-    guild     String
-    blocked   Boolean @default(false)
-    webhook   String?
+    channelid        String            @id
+    guild            String
+    blocked          Boolean           @default(false)
+    webhook          String?
+    memberByChannels MemberByChannel[]
 }
 
 model Guild {
-    guildid    String  @id
-    ignorebots Boolean @default(true)
-    lastmemberfetch Int @default(0)
+    guildid         String  @id
+    ignorebots      Boolean @default(true)
+    lastmemberfetch Int     @default(0)
+}
+
+model MemberByChannel {
+    channel   Channel @relation(fields: [channelid], references: [channelid])
+    channelid String
+    discordid String
+
+    // note: we do not create a relation to User to prevent unnecessary indexing & IO performance hits
+    @@id([channelid, discordid]) // only 1 per channel per user
 }
 
 model User {
