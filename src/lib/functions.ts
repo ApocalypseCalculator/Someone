@@ -1,20 +1,20 @@
 import { config } from '../config';
-import { Channel, CommandInteraction, GuildMember, Message, Snowflake, TextBasedChannel, TextChannel, VoiceChannel, Webhook, WebhookClient } from 'discord.js';
+import { Channel, CommandInteraction, GuildChannel, GuildMember, Message, Role, Snowflake, TextBasedChannel, TextChannel, VoiceChannel, Webhook, WebhookClient } from 'discord.js';
 import prisma from '../lib/db'
 import { throttledAllMembersFetch } from './membercache';
 
 export async function getRandomUserID(
     msg: Message | CommandInteraction,
     includeself: boolean = false,
-    channel?: TextBasedChannel | VoiceChannel
-): Promise<{id: string, count: number}> {
+    select: number = 1,
+    includebots: boolean = false,
+    channel?: GuildChannel,
+    role?: Role
+): Promise<{ id: string[], count: number }> {
     const server = msg.guild;
-    if(!channel) {
-        channel = msg.channel!;
-    }
-    if(!server || !(channel instanceof TextChannel)) {
+    if (!server) {
         return {
-            id: "",
+            id: [],
             count: 0
         }
     }
@@ -22,25 +22,36 @@ export async function getRandomUserID(
     let amount = 0;
 
     await throttledAllMembersFetch(server);
-    server.members.cache.forEach((member, key) => {
-        if (!member.user.bot && (member !== msg.member || includeself)) {
-            if (msg.channel instanceof TextChannel // note: redundant condition necessary for TypeScript
-                && channel.permissionsFor(member).has('ViewChannel') && channel.permissionsFor(member).has('ReadMessageHistory')) {
-                members.push(key);
-                amount++;
-            }
+    let memberslist: GuildMember[] = [];
+    if (channel && channel.members) {
+        memberslist = channel.members.map(m => m);
+    }
+    else {
+        memberslist = server.members.cache.map(m => m);
+    }
+    memberslist.forEach((member) => {
+        if ((!member.user.bot || includebots) &&
+            (member !== msg.member || includeself) &&
+            (!role || member.roles.cache.has(role.id))) {
+            members.push(member.id);
+            amount++;
         }
     });
 
-    const index = Math.round((amount - 1) * Math.random());
-    const id = members[index];
+    const picked = [];
+    const topick = Math.min(select, members.length);
+    for (let i = 0; i < topick; i++) {
+        const randomNum = Math.round((members.length - 1) * Math.random());
+        picked.push(members[randomNum]);
+        members.splice(randomNum, 1);
+    }
 
     if (config.logging) {
-        console.log(`Returned ID: ${id} out of ${amount}\tServer: ${msg.guild?.id}`);
+        console.log(`Returned ID: ${picked} out of ${amount}\tServer: ${msg.guild?.id}`);
     }
 
     return {
-        id: id,
+        id: picked,
         count: amount
     };
 }

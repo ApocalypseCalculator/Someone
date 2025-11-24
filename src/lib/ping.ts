@@ -39,13 +39,22 @@ export default async function pingSomeone(
         return failed_callback('@someone is disabled in this channel :(');
     }
 
-    const { id: randID, count: usrcount } = await getRandomUserID(msg, includeself);
+    const { id: randID, count: usrcount } = await getRandomUserID(
+        msg, 
+        includeself,
+        1,
+        false,
+        msg.channel as any
+    );
     let author_member = await guild.members.fetch(author);
     if (!author_member) {
         return failed_callback('unable to fetch member data');
     }
     if (!usrcount || usrcount < 5) {
         return failed_callback('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
+    }
+    if (randID.length == 0) {
+        return failed_callback('unable to get random user');
     }
     if (author_member.displayName.includes('clyde')) {
         return failed_callback('I\'m really sorry, but for some reason Discord doesn\'t allow the name \'clyde\' in webhooks. Would be great if you changed your nickname!');
@@ -60,8 +69,8 @@ export default async function pingSomeone(
         if (!success) {
             return failed_callback('There was an error sending the ping. This may be due to missing create webhook permissions.');
         }
-        if (randID !== author) {
-            await addToLeaderboard(randID);
+        if (randID[0] !== author) {
+            await addToLeaderboard(randID[0]);
         }
         await usedPing(author);
         await send_callback();

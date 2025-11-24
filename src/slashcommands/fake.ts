@@ -21,8 +21,17 @@ export = {
         if (hasPing(message)) {
             return interaction.followUp('I cannot ping in a fake message');
         } else {
-            const { id: fakemember } = await getRandomUserID(interaction);
-            const faker = interaction.guild?.members.cache.get(fakemember);
+            const { id: fakemember } = await getRandomUserID(
+                interaction,
+                false,
+                1,
+                false,
+                interaction.channel as TextChannel
+            );
+            if (fakemember.length == 0) {
+                return interaction.followUp('unable to get random user');
+            }
+            const faker = interaction.guild?.members.cache.get(fakemember[0]);
 
             try {
                 if (!(interaction.channel instanceof TextChannel) || !faker) {
