@@ -1,7 +1,6 @@
 import { config } from '../config';
 import { CommandInteraction, Guild, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../lib/db'
 
 /*
 throttle "all members" fetches to once per 30 minutes, returns true if a hard fetch occurred

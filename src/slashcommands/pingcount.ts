@@ -1,7 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../lib/db'
 
 export = {
     name: 'pingcount',

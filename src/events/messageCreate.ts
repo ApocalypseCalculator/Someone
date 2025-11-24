@@ -4,8 +4,7 @@ import { canPing, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendW
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
 
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../lib/db'
 
 export = {
     name: 'messageCreate',

@@ -1,9 +1,8 @@
 import { config } from '../config';
 import { EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { PrismaClient } from '@prisma/client'
 import { throttledAllMembersFetch } from '../lib/functions';
-const prisma = new PrismaClient()
+import prisma from '../lib/db'
 
 export = {
     name: 'sleaderboard',

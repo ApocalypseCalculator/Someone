@@ -1,7 +1,6 @@
 import { SlashCommand } from '../typings/bot';
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../lib/db'
 
 export = {
     name: 'grank',
