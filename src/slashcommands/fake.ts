@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, TextChannel, MessageFlags } from 'discord.js';
+import { ApplicationCommandOptionType, TextChannel, MessageFlags, Role, User } from 'discord.js';
 import { getRandomUserID, sendWebhook } from '../lib/functions';
 import { SlashCommand } from '../typings/bot';
 
@@ -10,10 +10,22 @@ export = {
         description: 'The message to send.',
         type: ApplicationCommandOptionType.String,
         required: true,
+    }, {
+        name: 'role',
+        description: 'Select only members with this role to impersonate.',
+        type: ApplicationCommandOptionType.Role,
+        required: false,
+    }, {
+        name: 'user',
+        description: 'Impersonate specific user. (Bots excluded)',
+        type: ApplicationCommandOptionType.User,
+        required: false,
     }],
     execute: async (interaction) => {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const message = interaction.options.get('message', true).value;
+        const role = interaction.options.getRole('role', false) as Role;
+        const user = interaction.options.getUser('user', false) as User;
         if (typeof message !== 'string') {
             return interaction.followUp('invalid message argument');
         }
@@ -21,17 +33,25 @@ export = {
         if (hasPing(message)) {
             return interaction.followUp('I cannot ping in a fake message');
         } else {
-            const { id: fakemember } = await getRandomUserID(
-                interaction,
-                false,
-                1,
-                false,
-                interaction.channel as TextChannel
-            );
-            if (fakemember.length == 0) {
-                return interaction.followUp('unable to get random user');
+            let userid = "";
+            if (user && !user.bot) {
+                userid = user.id;
             }
-            const faker = interaction.guild?.members.cache.get(fakemember[0]);
+            else {
+                const { id: fakemember } = await getRandomUserID(
+                    interaction,
+                    false,
+                    1,
+                    false,
+                    interaction.channel as TextChannel,
+                    role
+                );
+                if (fakemember.length == 0) {
+                    return interaction.followUp('No random user available to impersonate');
+                }
+                userid = fakemember[0];
+            }
+            const faker = interaction.guild?.members.cache.get(userid);
 
             try {
                 if (!(interaction.channel instanceof TextChannel) || !faker) {
