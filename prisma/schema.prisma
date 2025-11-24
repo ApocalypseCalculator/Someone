@@ -15,9 +15,9 @@ model Channel {
 }
 
 model Guild {
-    guildid         String  @id
-    ignorebots      Boolean @default(true)
-    lastmemberfetch Int     @default(0)
+    guildid         String   @id
+    ignorebots      Boolean  @default(true)
+    lastmemberfetch DateTime @default(now())
 }
 
 model MemberByChannel {
@@ -30,15 +30,15 @@ model MemberByChannel {
 }
 
 model User {
-    discordid String @id
-    lastping  Int
+    discordid String   @id
+    lastping  DateTime @default(now())
     pinged    Int
 }
 
 model Error {
-    errid     String @id
+    errid     String   @id
     error     String
-    time      Int
+    time      DateTime @default(now())
     guild     String
     channelid String
     discordid String
