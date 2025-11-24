@@ -1,4 +1,4 @@
-import { ChannelType, Client, CommandInteraction, Guild, Message } from "discord.js";
+import { ChannelType, Client, CommandInteraction, Guild, Message, Role } from "discord.js";
 import { addToLeaderboard, canPing, getRandomUserID, isDisabled, sendWebhook, usedPing } from "./functions";
 import { config } from "../config";
 
@@ -12,7 +12,8 @@ export default async function pingSomeone(
     guild: Guild,
     failed_callback: (response: string) => Promise<void>,
     send_callback: () => Promise<void>,
-    includeself: boolean = false
+    includeself: boolean = false,
+    role?: Role
 ): Promise<void> {
     const PING_REGEX = new RegExp(`<@!?${client.user?.id}>`, 'g');
     // debugging
@@ -44,14 +45,15 @@ export default async function pingSomeone(
         includeself,
         1,
         false,
-        msg.channel as any
+        msg.channel as any,
+        role
     );
     let author_member = await guild.members.fetch(author);
     if (!author_member) {
         return failed_callback('unable to fetch member data');
     }
     if (!usrcount || usrcount < 5) {
-        return failed_callback('This channel has less than 5 non-bot users. To prevent spam pinging to gain rank, @someone is disabled');
+        return failed_callback('Your selection has less than 5 non-bot users in this channel. To prevent spam pinging to gain rank, @someone is disabled');
     }
     if (randID.length == 0) {
         return failed_callback('unable to get random user');
