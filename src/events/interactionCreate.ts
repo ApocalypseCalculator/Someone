@@ -41,10 +41,10 @@ export = {
                         command: interaction.commandName
                     }
                 });
-                return interaction.reply(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`/info\` for invite).`);
+                return interaction.followUp(`Fatal error occurred, error trace id is \`${errid}\`. You can take this id to the support server for help (\`/info\` for invite).`);
             } catch (err) {
                 console.log(err);
-                return interaction.reply('Fatal error occurred');
+                return interaction.followUp('Fatal error occurred');
             }
         }
     },
