@@ -4,11 +4,11 @@ import prisma from '../lib/db'
 
 export = {
     name: 'ignorebots',
-    description: 'Make @someone ignore bots (or not)',
+    description: 'Make @someone ignore all bot messages received (or not)',
     options: [{
         name: 'ignore',
         type: ApplicationCommandOptionType.Boolean,
-        description: 'Ignore or not',
+        description: 'Ignore all bot messages or not',
         required: true,
     }],
     execute: async (interaction) => {

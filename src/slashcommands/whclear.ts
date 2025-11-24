@@ -4,7 +4,7 @@ import prisma from '../lib/db';
 
 export = {
     name: 'whclear',
-    description: 'Clears all webhooks managed by Someone bot in the current server.',
+    description: 'Clears all webhooks managed by Someone bot.',
     execute: async (interaction) => {
         if (!(interaction.channel instanceof TextChannel)) {
             return interaction.reply({ content: 'not a text channel', flags: MessageFlags.Ephemeral });

@@ -14,10 +14,13 @@ export = {
                 name: 'Random Ping', value: 'ping me', inline: true,
             },
             {
-                name: 'Ping Command', value: '/ping', inline: true,
+                name: 'Random Ping', value: '/someone', inline: true,
             },
             {
-                name: 'Webhook Clearing Command', value: '/whclear', inline: true,
+                name: 'Pick an amount of random members', value: '/random [n]', inline: true,
+            },
+            {
+                name: 'Create fake message with random user', value: '/fake', inline: true,
             },
             {
                 name: 'Pings Received Counter Command', value: '/pingcount', inline: true,
@@ -35,16 +38,16 @@ export = {
                 name: 'Help Command', value: '/help', inline: true,
             },
             {
-                name: 'Create fake message with random user', value: '/fake', inline: true,
-            },
-            {
                 name: 'Disabled/Re-enabled @someone', value: '/block', inline: true,
             },
             {
                 name: 'View disabled channels', value: '/sblocked', inline: true,
             },
             {
-                name: 'Pick an amount of random members', value: '/random [n]', inline: true,
+                name: 'Webhook Clearing Command', value: '/whclear', inline: true,
+            },
+            {
+                name: 'Ignore Bot Messages', value: '/ignorebots', inline: true,
             },
             {
                 name: 'Information Page', value: '/info', inline: true,
