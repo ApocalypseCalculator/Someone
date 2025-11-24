@@ -13,33 +13,33 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
         }
     });
     if (guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 60 * 1000) {
-        if (!guilddata.djs_members_uncached) {
+        // use exising cache to fetch if discord.js member cache is not populated OR more than 10 minutes old
+        if (!guilddata.djs_members_uncached && guilddata.lastcacherefresh.getTime() > Date.now() - 10 * 60 * 1000) {
             return false;
         }
-        else {
-            let cachedusers = (await prisma.memberByGuildCache.findMany({
-                where: {
-                    guildid: guild.id
-                }
-            })).map(u => u.discordid);
-            if (!cachedusers || cachedusers.length === 0) {
-                return false;
+        let cachedusers = (await prisma.memberByGuildCache.findMany({
+            where: {
+                guildid: guild.id
             }
-            // hard fetch existing local cache users
-            await guild.members.fetch({
-                user: cachedusers
-            })
-            // we use update here because entry must exist
-            await prisma.guild.update({
-                where: {
-                    guildid: guild.id
-                },
-                data: {
-                    djs_members_uncached: false
-                }
-            })
-            updateMemberCacheForGuild(guild, cachedusers);
+        })).map(u => u.discordid);
+        if (!cachedusers || cachedusers.length === 0) {
+            return false;
         }
+        // hard fetch existing local cache users
+        await guild.members.fetch({
+            user: cachedusers
+        })
+        // we use update here because entry must exist
+        await prisma.guild.update({
+            where: {
+                guildid: guild.id
+            },
+            data: {
+                lastcacherefresh: new Date(),
+                djs_members_uncached: false
+            }
+        })
+        updateMemberCacheForGuild(guild, cachedusers);
     }
     else {
         await guild.members.fetch();
@@ -48,10 +48,12 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
                 guildid: guild.id
             },
             update: {
+                lastcacherefresh: new Date(),
                 lastmemberfetch: new Date()
             },
             create: {
                 guildid: guild.id,
+                lastcacherefresh: new Date(),
                 lastmemberfetch: new Date()
             }
         });
