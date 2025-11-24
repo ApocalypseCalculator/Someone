@@ -12,9 +12,16 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
             guildid: guild.id
         }
     });
-    if (guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 60 * 1000) {
-        // use exising cache to fetch if discord.js member cache is not populated OR more than 10 minutes old
-        if (!guilddata.djs_members_uncached && guilddata.lastcacherefresh.getTime() > Date.now() - 10 * 60 * 1000) {
+    if (guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 1000) {
+        /*
+        i wrote this solution by mistake because I thought there was a 30 minute ratelimit instead of 30s
+        so I will disable it behind this env var and it can be enabled if Discord imposes a stricter limit
+        */
+        if (!process.env.USE_DB_CACHE) {
+            return false;
+        }
+        // use exising cache to fetch if discord.js member cache is not populated OR more than 10 seconds old
+        if (!guilddata.djs_members_uncached && guilddata.lastcacherefresh.getTime() > Date.now() - 10 * 10 * 1000) {
             return false;
         }
         let cachedusers = (await prisma.memberByGuildCache.findMany({
@@ -63,6 +70,9 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
 }
 
 async function updateMemberCacheForGuild(guild: Guild, oldmembers?: string[]): Promise<void> {
+    if (!process.env.USE_DB_CACHE) {
+        return;
+    }
     if (!oldmembers) {
         oldmembers = (await prisma.memberByGuildCache.findMany({
             where: {
@@ -92,6 +102,9 @@ async function updateMemberCacheForGuild(guild: Guild, oldmembers?: string[]): P
 }
 
 export async function markUncachedOnColdStart(): Promise<void> {
+    if (!process.env.USE_DB_CACHE) {
+        return;
+    }
     await prisma.guild.updateMany({
         where: {
             djs_members_uncached: false
