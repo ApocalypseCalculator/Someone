@@ -1,4 +1,4 @@
-import { Message, ClientEvents, CommandInteraction, ApplicationCommandOptionData, InteractionResponse } from 'discord.js';
+import { Message, ClientEvents, CommandInteraction, ApplicationCommandOptionData, InteractionResponse, ChatInputCommandInteraction } from 'discord.js';
 import { Someone } from '..';
 
 export interface Command {
@@ -26,17 +26,13 @@ export interface SlashCommand {
      */
     description: string;
     /**
-     * Is the command global, or for a specific guild only?
-     */
-    global: boolean;
-    /**
      * The slash command options.
      */
     options: ApplicationCommandOptionData[];
     /**
      * The actual stuff the command will do.
      */
-    execute: (interaction: CommandInteraction, client?: Someone) => Promise<InteractionResponse>;
+    execute: (interaction: ChatInputCommandInteraction, client?: Someone) => Promise<InteractionResponse | Message>;
 }
 
 export interface EventHandler {

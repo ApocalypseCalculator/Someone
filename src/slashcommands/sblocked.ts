@@ -1,14 +1,12 @@
-import { EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from '../lib/db'
+import createBaseEmbed from '../lib/embed';
 
 export = {
     name: 'sblocked',
-    description: 'Shows all blocked channels in a guild.',
-    global: true,
-    execute: async (interaction) => {
-        let blocked = '';
+    description: 'Shows all blocked channels in this server.',
+    execute: async (interaction, client) => {
+        await interaction.deferReply();
         let chnllist = await prisma.channel.findMany({
             where: {
                 guild: interaction.guildId ?? "-1",
@@ -16,18 +14,18 @@ export = {
             }
         });
 
-        chnllist.forEach(chnl => {
-            blocked += `<#${chnl.channelid}> `;
-        });
+        let blocked = chnllist.map(c => `<#${c.channelid}>`).join(' ');
 
-        if(blocked.length > 1900) {
-            return interaction.reply('Oof you have too many channels blocked in this server');
+        if (blocked.length > 1900) {
+            return interaction.followUp('Too many channels blocked in this server :(');
         } else {
-            const embed = new EmbedBuilder()
-                .setColor(13833)
-                .addFields({ name: 'Blocked channels in this server', value: (blocked === '') ? 'No blocked channels' : blocked });
-
-            return interaction.reply({ embeds: [embed] });
+            return interaction.followUp({
+                embeds: [createBaseEmbed(
+                    client,
+                    'Blocked channels in this server',
+                    (blocked === '') ? 'No blocked channels' : blocked
+                )]
+            });
         }
     },
 } as SlashCommand;

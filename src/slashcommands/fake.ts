@@ -1,46 +1,75 @@
-import { ApplicationCommandOptionType, TextChannel } from 'discord.js';
-import { config } from '../assets/config';
-import { getRandomUserID, sendWebhook } from '../assets/functions';
+import { ApplicationCommandOptionType, TextChannel, MessageFlags, Role, User } from 'discord.js';
+import { getRandomUserID, sendWebhook } from '../lib/functions';
 import { SlashCommand } from '../typings/bot';
+import { hasPing } from '../lib/regex';
 
 export = {
     name: 'fake',
-    description: 'Sends a fake message.',
-    global: true,
+    description: 'Sends a fake message impersonating someone else.',
     options: [{
         name: 'message',
         description: 'The message to send.',
         type: ApplicationCommandOptionType.String,
         required: true,
+    }, {
+        name: 'role',
+        description: 'Select only members with this role to impersonate.',
+        type: ApplicationCommandOptionType.Role,
+        required: false,
+    }, {
+        name: 'user',
+        description: 'Impersonate specific user. (Bots excluded)',
+        type: ApplicationCommandOptionType.User,
+        required: false,
     }],
     execute: async (interaction) => {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const message = interaction.options.get('message', true).value;
+        const role = interaction.options.getRole('role', false) as Role;
+        const user = interaction.options.getUser('user', false) as User;
         if (typeof message !== 'string') {
-            return;
+            return interaction.followUp('invalid message argument');
         }
 
-        if (/@everyone/.test(message) || /<@!?&[0,9]{18}>/.test(message)) {
-            return interaction.reply('Ahem I will not ping in a fake message');
+        if (hasPing(message)) {
+            return interaction.followUp('I cannot ping in a fake message');
         } else {
-            const fakemember = await getRandomUserID(interaction);
-            const faker = interaction.guild?.members.cache.get(fakemember);
+            let userid = "";
+            if (user && !user.bot) {
+                userid = user.id;
+            }
+            else {
+                const { id: fakemember } = await getRandomUserID(
+                    interaction,
+                    false,
+                    1,
+                    false,
+                    interaction.channel as TextChannel,
+                    role
+                );
+                if (fakemember.length == 0) {
+                    return interaction.followUp('No random user available to impersonate');
+                }
+                userid = fakemember[0];
+            }
+            const faker = interaction.guild?.members.cache.get(userid);
 
             try {
                 if (!(interaction.channel instanceof TextChannel) || !faker) {
-                    return;
+                    return interaction.followUp('Incorrect channel or invalid cache. Try again later.');
                 }
 
                 let success = await sendWebhook(interaction, faker, message)
 
                 if (success) {
-                    return interaction.reply({ content: 'Your fake message was sent!', ephemeral: true });
+                    return interaction.followUp('Your fake message was sent!');
                 }
                 else {
-                    return interaction.reply(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
+                    return interaction.followUp(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
                 }
             } catch (error) {
                 console.log(error);
-                return interaction.reply(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact ApocalypseCalculator <@${config.creatorID}> if this problem persists`);
+                return interaction.followUp(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook permissions for this channel.`);
             }
         }
     },

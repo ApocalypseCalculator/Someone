@@ -1,9 +1,7 @@
 # Someone
 ## ABOUT THE BOT
 
-The legendary Someone bot for Discord. Brings back Discord's 2018 April Fools joke. Created by ApocalypseCalculator#7096. 
-
-Huge thanks to [Terrarian](https://github.com/Terra-rian) for rewriting into TypeScript, updating to new Discord.js, and adding slash commands.
+The legendary Someone bot for Discord. Brings back Discord's 2018 April Fools joke. 
 
 ## WHAT THE BOT DOES
 
@@ -11,19 +9,11 @@ When you mention the bot, it will randomly mention some other server member *who
 
 ## SELF-HOSTING
 
-1. You will need to have [Node.js](https://nodejs.org/en/) installed.
+1. Clone this repository onto your PC (`git clone https://github.com/ApocalypseCalculator/Someone`) and run `npm run setup`. 
 
-2. Clone this repository onto your PC (`git clone https://github.com/ApocalypseCalculator/Someone`).
+2. Inside the `.env` file, input your bot token as `TOKEN`,  Prisma DB connection URL `DATABASE_URL`, and `REGISTER_CMDS`. If hosting for multiple servers, `REGISTER_CMDS="global"` (takes up to 30min), otherwise, `REGISTER_CMDS="guild"` (instant). If using single-guild command, modify `src/config.ts`'s `mainGuild` to your guild ID. `REGISTER_CMDS` can be removed after the first run registers the commands. 
 
-3. In the folder called `assets`, open the file called `token.ts`.
-
-4. Inside the `token.ts` file, put your bot token inside the `""` and save the file.
-
-5. Before running, make sure you have installed the required dependencies by running `npm install` in the bot's root directory (npm should come with node, if it does not, seperately install npm).
-
-6. Go to your terminal, head to the root bot folder directory (`cd filepath`), and run the `npm run start` command.
-
-**The bot has been upgraded to comply with the newest Discord.js v14!**
+3. Run `npm run start`, or you can compile with `tsc` and run the JS output
 
 ## USING THE BOT
 
@@ -31,19 +21,20 @@ This bot duplicates the @Someone April Fools joke. To use it, simply ping the bo
 
 You can use `/commands` for a list of commands.
 
-If you get a *webhook max length exceeded* error message, simply run the command `/whclear` to clear out the webhooks.
+If you get a *webhook max length exceeded* error message, simply run the command `/whclear` to clear out the webhooks managed by Someone.
 
-Make sure to grant the bot admin privileges or it may not run properly.
+Make sure to grant the bot privileges to create webhooks, manage messages, and view channels or it may not run properly.
 
-If there are any bugs, feel free to contact me through Discord at `ApocalypseCalculator#7096`.
+If there are any bugs, feel free to contact me through Discord in our [support server](https://discord.gg/5WmPnYx)
 
 **You can find a hosted version of this bot at [top.gg](https://top.gg/bot/705135432588853288), and while you're there, please vote for my bot.**
 
-![Demo GIF](https://cdn.discordapp.com/attachments/711369875007995954/711617131866882058/demo2.gif)
+![Demo GIF](https://github.com/user-attachments/assets/6fd3226f-33ca-41d6-97ab-a09ebc91c96f)
 
-## LICENSING AND LEGAL STUFF
 
-I hate legal stuff, you can read the license if you want to. 
-The gist of it is: you may host my bot, but you may not modify my code in any way except for the `token.ts` file.
-If you want to modify my bot outside of those lines, you would need to contact me through Discord at `ApocalypseCalculator#7096` to gain my approval *before* making any changes.
-If you are going to take parts of the code for your own purposes, you must notify me *and* credit me.
+## LEGAL
+
+[Privacy policy and terms & conditions](https://github.com/ApocalypseCalculator/Someone/tree/master/legal) apply if using hosted version of the bot. 
+
+## CONTRIBUTORS
+- [Terrarian](https://github.com/Terra-rian) (the GOAT for rewriting the original bot into TypeScript + updating to slash commands)

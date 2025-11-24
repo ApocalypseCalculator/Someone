@@ -1,31 +1,59 @@
-import { config } from './config';
-import { ChannelType, CommandInteraction, GuildMember, Message, Snowflake, TextChannel, User, Webhook, WebhookClient } from 'discord.js';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { config } from '../config';
+import { Channel, CommandInteraction, GuildChannel, GuildMember, Message, Role, Snowflake, TextBasedChannel, TextChannel, VoiceChannel, Webhook, WebhookClient } from 'discord.js';
+import prisma from '../lib/db'
+import { throttledAllMembersFetch } from './membercache';
 
-export async function getRandomUserID(msg: Message | CommandInteraction): Promise<string> {
+export async function getRandomUserID(
+    msg: Message | CommandInteraction,
+    includeself: boolean = false,
+    select: number = 1,
+    includebots: boolean = false,
+    channel?: GuildChannel,
+    role?: Role
+): Promise<{ id: string[], count: number }> {
     const server = msg.guild;
+    if (!server) {
+        return {
+            id: [],
+            count: 0
+        }
+    }
     const members: Snowflake[] = [];
     let amount = 0;
 
-    await server?.members.fetch();
-    server?.members.cache.forEach((member, key) => {
-        if (!member.user.bot && member !== msg.member) {
-            if (msg.channel?.type !== ChannelType.DM && msg.channel?.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
-                members.push(key);
-                amount++;
-            }
+    await throttledAllMembersFetch(server);
+    let memberslist: GuildMember[] = [];
+    if (channel && channel.members) {
+        memberslist = channel.members.map(m => m);
+    }
+    else {
+        memberslist = server.members.cache.map(m => m);
+    }
+    memberslist.forEach((member) => {
+        if ((!member.user.bot || includebots) &&
+            (member !== msg.member || includeself) &&
+            (!role || member.roles.cache.has(role.id))) {
+            members.push(member.id);
+            amount++;
         }
     });
 
-    const index = Math.round((amount - 1) * Math.random());
-    const id = members[index];
-
-    if (config.logging) {
-        console.log(`Returned ID: ${id}\tServer: ${msg.guild?.id}`);
+    const picked = [];
+    const topick = Math.min(select, members.length);
+    for (let i = 0; i < topick; i++) {
+        const randomNum = Math.round((members.length - 1) * Math.random());
+        picked.push(members[randomNum]);
+        members.splice(randomNum, 1);
     }
 
-    return id;
+    if (config.logging) {
+        console.log(`Returned ID: ${picked} out of ${amount}\tServer: ${msg.guild?.id}`);
+    }
+
+    return {
+        id: picked,
+        count: amount
+    };
 }
 
 export async function sendWebhook(interaction: Message | CommandInteraction, usr: GuildMember, content: string): Promise<boolean> {
@@ -88,26 +116,6 @@ async function sendNewWebhook(interaction: Message | CommandInteraction, usr: Gu
     return true;
 }
 
-export function userCount(msg: Message): Promise<number> | undefined {
-    const memberArray: Snowflake[] = [];
-    let amount = 0;
-
-    return msg.guild?.members.fetch().then(members => {
-        members.forEach((member, key) => {
-            if (!member.user.bot && member != msg.member) {
-                if (msg.channel.type !== ChannelType.DM && msg.channel.permissionsFor(member).has('ViewChannel') && msg.channel.permissionsFor(member).has('ReadMessageHistory')) {
-                    memberArray.push(key);
-                    amount++;
-                }
-            }
-        });
-
-        return amount;
-    }).catch(() => {
-        return 0;
-    });
-}
-
 export async function addToLeaderboard(id: Snowflake): Promise<void> {
     await prisma.user.upsert({
         where: {
@@ -120,7 +128,7 @@ export async function addToLeaderboard(id: Snowflake): Promise<void> {
         },
         create: {
             discordid: id,
-            lastping: 0,
+            lastping: new Date(0),
             pinged: 1
         }
     })
@@ -146,7 +154,7 @@ export async function canPing(id: Snowflake): Promise<boolean> {
             discordid: id
         }
     });
-    if (user && user.lastping > Date.now() - config.pingcooldown) {
+    if (user && user.lastping.getTime() > Date.now() - config.pingcooldown) {
         return false;
     }
     else {
@@ -160,11 +168,11 @@ export async function usedPing(id: Snowflake): Promise<void> {
             discordid: id
         },
         update: {
-            lastping: Date.now()
+            lastping: new Date()
         },
         create: {
             discordid: id,
-            lastping: Date.now(),
+            lastping: new Date(),
             pinged: 0
         }
     })

@@ -1,12 +1,10 @@
 import { SlashCommand } from '../typings/bot';
-import { ApplicationCommandOptionType, ChannelType } from 'discord.js';
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { ApplicationCommandOptionType, ChannelType, MessageFlags } from 'discord.js';
+import prisma from '../lib/db'
 
 export = {
     name: 'block',
     description: 'Blocks a channel from using the bot.',
-    global: true,
     options: [{
         name: 'channel',
         type: ApplicationCommandOptionType.Channel,
@@ -15,42 +13,37 @@ export = {
     }],
     execute: async (interaction) => {
         if (!interaction.memberPermissions?.has('Administrator', true)) {
-            return interaction.reply({ content: 'not authorized', ephemeral: true });
+            return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
 
-        const channel = interaction.options.get('channel', true).channel;
-        if (channel) {
-            if (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildForum && channel.type !== ChannelType.PrivateThread && channel.type !== ChannelType.PublicThread) {
-                return interaction.reply(`Invalid channel`);
-            }
-            let chnldata = await prisma.channel.findUnique({
-                where: {
-                    channelid: channel.id
-                }
-            });
-            if (chnldata) {
-                await prisma.channel.update({
-                    where: {
-                        channelid: channel.id
-                    },
-                    data: {
-                        blocked: !chnldata.blocked
-                    }
-                });
-                return interaction.reply(`Channel ${chnldata!.blocked ? "re-enabled" : "disabled"} for @someone pings`);
-            }
-            else {
-                await prisma.channel.create({
-                    data: {
-                        channelid: channel.id,
-                        guild: interaction.guildId ?? "",
-                        blocked: false
-                    }
-                });
-                return interaction.reply(`Channel disabled for @someone pings`);
-            }
-        } else {
+        const channel = interaction.options.getChannel('channel', true);
+        if (!channel) {
             return interaction.reply('Please mention a channel to disable/re-enable.');
         }
+
+        if (![ChannelType.GuildText, ChannelType.GuildForum, ChannelType.PrivateThread, ChannelType.PublicThread].includes(channel.type)) {
+            return interaction.reply(`Invalid channel`);
+        }
+        await interaction.deferReply();
+        let chnldata = await prisma.channel.findUnique({
+            where: {
+                channelid: channel.id
+            }
+        });
+        let resultchannel = await prisma.channel.upsert({
+            where: {
+                channelid: channel.id
+            },
+            update: {
+                blocked: chnldata ? !chnldata.blocked : true
+            },
+            create: {
+                channelid: channel.id,
+                guild: interaction.guildId!,
+                blocked: true
+            }
+        })
+
+        return interaction.followUp(`Channel ${resultchannel.blocked ? "disabled" : "re-enabled"} for @someone pings`);
     },
 } as SlashCommand;

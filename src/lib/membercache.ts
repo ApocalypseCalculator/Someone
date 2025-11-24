@@ -1,0 +1,120 @@
+import { config } from '../config';
+import { Guild } from 'discord.js';
+import prisma from '../lib/db'
+
+/*
+throttle "all members" fetches to once per 30 minutes, returns true if a hard fetch occurred
+downstream consumers should use member cache after calling this
+*/
+export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
+    let guilddata = await prisma.guild.findUnique({
+        where: {
+            guildid: guild.id
+        }
+    });
+    if (guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 1000) {
+        /*
+        i wrote this solution by mistake because I thought there was a 30 minute ratelimit instead of 30s
+        so I will disable it behind this env var and it can be enabled if Discord imposes a stricter limit
+        */
+        if (!process.env.USE_DB_CACHE) {
+            return false;
+        }
+        // use exising cache to fetch if discord.js member cache is not populated OR more than 10 seconds old
+        if (!guilddata.djs_members_uncached && guilddata.lastcacherefresh.getTime() > Date.now() - 10 * 10 * 1000) {
+            return false;
+        }
+        let cachedusers = (await prisma.memberByGuildCache.findMany({
+            where: {
+                guildid: guild.id
+            }
+        })).map(u => u.discordid);
+        if (!cachedusers || cachedusers.length === 0) {
+            return false;
+        }
+        // hard fetch existing local cache users
+        await guild.members.fetch({
+            user: cachedusers
+        })
+        // we use update here because entry must exist
+        await prisma.guild.update({
+            where: {
+                guildid: guild.id
+            },
+            data: {
+                lastcacherefresh: new Date(),
+                djs_members_uncached: false
+            }
+        })
+        updateMemberCacheForGuild(guild, cachedusers);
+    }
+    else {
+        await guild.members.fetch();
+        await prisma.guild.upsert({
+            where: {
+                guildid: guild.id
+            },
+            update: {
+                lastcacherefresh: new Date(),
+                lastmemberfetch: new Date()
+            },
+            create: {
+                guildid: guild.id,
+                lastcacherefresh: new Date(),
+                lastmemberfetch: new Date()
+            }
+        });
+        updateMemberCacheForGuild(guild);
+    }
+    return true;
+}
+
+async function updateMemberCacheForGuild(guild: Guild, oldmembers?: string[]): Promise<void> {
+    if (!process.env.USE_DB_CACHE) {
+        return;
+    }
+    if (!oldmembers) {
+        oldmembers = (await prisma.memberByGuildCache.findMany({
+            where: {
+                guildid: guild.id
+            }
+        })).map(m => m.discordid);
+    }
+    let memberstoremove = oldmembers.filter(id => !guild.members.cache.has(id));
+    let oldmembersmap = new Map<string, boolean>();
+    oldmembers.forEach(id => oldmembersmap.set(id, true));
+    let memberstoadd = guild.members.cache.filter(m => !m.user.bot && !oldmembersmap.has(m.id)).map(m => m.id);
+    await prisma.memberByGuildCache.deleteMany({
+        where: {
+            guildid: guild.id,
+            discordid: {
+                in: memberstoremove
+            }
+        }
+    });
+    await prisma.memberByGuildCache.createMany({
+        data: memberstoadd.map(id => ({
+            guildid: guild.id,
+            discordid: id
+        }))
+    });
+    return;
+}
+
+export async function markUncachedOnColdStart(): Promise<void> {
+    if (!process.env.USE_DB_CACHE) {
+        return;
+    }
+    await prisma.guild.updateMany({
+        where: {
+            djs_members_uncached: false
+        },
+        data: {
+            djs_members_uncached: true
+        }
+    });
+    if (config.logging) {
+        console.log('Reset local member cache state');
+    }
+    return;
+}

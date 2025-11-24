@@ -1,11 +1,12 @@
 {
   "name": "someone",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "Someone bot for Discord. Brings back Discord's 2018 April Fools joke.",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon src/index.ts"
+    "start": "npx ts-node src/index.ts",
+    "setup": "npm i && cp .env.example .env && npx prisma migrate deploy && npx prisma generate"
   },
   "repository": {
     "type": "git",
@@ -18,16 +19,17 @@
   },
   "homepage": "https://github.com/ApocalypseCalculator/Someone/blob/master/README.md",
   "dependencies": {
-    "@prisma/client": "^3.15.2",
-    "discord.js": "^14.6.0",
-    "systeminformation": "^5.12.14"
+    "@prisma/adapter-better-sqlite3": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "eslint": "^8.27.0",
-    "nodemon": "^2.0.20",
-    "prisma": "^3.15.2",
-    "typescript": "^4.8.4"
+    "prisma": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
