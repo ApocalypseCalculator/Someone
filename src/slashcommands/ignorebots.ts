@@ -4,7 +4,7 @@ import prisma from '../lib/db'
 
 export = {
     name: 'ignorebots',
-    description: 'Make @Someone ignore bots (or not)',
+    description: 'Make @someone ignore bots (or not)',
     global: true,
     options: [{
         name: 'ignore',
@@ -16,22 +16,21 @@ export = {
         if (!interaction.memberPermissions?.has('Administrator', true)) {
             return interaction.reply({ content: 'not authorized', flags: MessageFlags.Ephemeral });
         }
+        await interaction.deferReply();
         const ignore = !!(interaction.options.get('ignore', true).value);
 
         await prisma.guild.upsert({
             where: {
-                guildid: interaction.guildId ?? ""
+                guildid: interaction.guildId!
             },
             update: {
                 ignorebots: ignore
             },
             create: {
-                guildid: interaction.guildId ?? "",
+                guildid: interaction.guildId!,
                 ignorebots: ignore
             }
-        }).catch(() => {
-            return interaction.reply('Database error');
-        })
-        return interaction.reply(`Someone bot is set to ${ignore ? '' : 'not '}ignore other bots in this server`);
+        });
+        return interaction.followUp(`Someone bot is set to ${ignore ? '' : 'not '}ignore other bots in this server`);
     },
 } as SlashCommand;
