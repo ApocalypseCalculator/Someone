@@ -19,10 +19,12 @@ export class Someone extends Client {
         super({
             intents: [
                 GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildIntegrations,
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildModeration,
+                GatewayIntentBits.GuildVoiceStates,
                 GatewayIntentBits.GuildWebhooks,
-                GatewayIntentBits.GuildIntegrations,
             ], // most guild-related non-privileged intents + the GUILD_MEMBERS intent
         });
 

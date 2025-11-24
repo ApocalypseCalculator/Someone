@@ -1,6 +1,5 @@
 import { ApplicationCommandOptionType, GuildChannel, Role } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { throttledAllMembersFetch } from '../lib/membercache';
 import createBaseEmbed from '../lib/embed';
 import { getRandomUserID } from '../lib/functions';
 
@@ -43,7 +42,7 @@ export = {
         const channel = interaction.options.getChannel('channel', false) as GuildChannel;
         const role = interaction.options.getRole('role', false) as Role;
         const includebots = !!(interaction.options.get('includebots', false)?.value);
-        const includeself = !(interaction.options.get('includeself', false)?.value);
+        const includeself = !!(interaction.options.get('includeself', false)?.value ?? true);
         const debug = !!(interaction.options.get('debug', false)?.value);
 
         if (typeof number !== 'number' || isNaN(number)) {
@@ -54,7 +53,6 @@ export = {
         }
         else {
             await interaction.deferReply();
-            await throttledAllMembersFetch(interaction.guild!);
             const { id: picked, count } = await getRandomUserID(
                 interaction,
                 includeself,
