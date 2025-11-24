@@ -1,5 +1,4 @@
 import { ApplicationCommandOptionType, TextChannel, MessageFlags } from 'discord.js';
-import { config } from '../config';
 import { getRandomUserID, sendWebhook } from '../lib/functions';
 import { SlashCommand } from '../typings/bot';
 
@@ -16,32 +15,39 @@ export = {
     execute: async (interaction) => {
         const message = interaction.options.get('message', true).value;
         if (typeof message !== 'string') {
-            return;
+            return interaction.reply('invalid message argument');
         }
 
-        if (/@everyone/.test(message) || /<@!?&[0,9]{18}>/.test(message)) {
-            return interaction.reply('Ahem I will not ping in a fake message');
+        if (hasPing(message)) {
+            return interaction.reply('I cannot ping in a fake message');
         } else {
+            await interaction.deferReply();
+
             const {id: fakemember} = await getRandomUserID(interaction);
             const faker = interaction.guild?.members.cache.get(fakemember);
 
             try {
                 if (!(interaction.channel instanceof TextChannel) || !faker) {
-                    return;
+                    return interaction.followUp('Incorrect channel or invalid cache. Try again later.');
                 }
 
                 let success = await sendWebhook(interaction, faker, message)
 
                 if (success) {
-                    return interaction.reply({ content: 'Your fake message was sent!', flags: MessageFlags.Ephemeral });
+                    return interaction.followUp({ content: 'Your fake message was sent!', flags: MessageFlags.Ephemeral });
                 }
                 else {
-                    return interaction.reply(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
+                    return interaction.followUp(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
                 }
             } catch (error) {
                 console.log(error);
-                return interaction.reply(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook + manage messages permissions for this channel. You can contact ApocalypseCalculator <@${config.creatorID}> if this problem persists`);
+                return interaction.reply(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook permissions for this channel.`);
             }
         }
     },
 } as SlashCommand;
+
+function hasPing(content: string) {
+    // good regex trust
+    return /<@!?&?\d{17,22}>/.test(content) || /@everyone/.test(content) || /@here/.test(content);
+}
