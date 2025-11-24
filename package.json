@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon src/index.ts"
+    "start": "npx ts-node src/index.ts",
+    "setup": "npm i && cp .env.example .env && npx prisma migrate deploy && npx prisma generate"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,8 @@
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "eslint": "^8.27.0",
-    "nodemon": "^2.0.20",
     "prisma": "^7.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }
