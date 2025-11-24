@@ -1,10 +1,11 @@
-import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
+import { ApplicationCommandOptionType } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import { throttledAllMembersFetch } from '../lib/functions';
-// TODO: 
+import createBaseEmbed from '../lib/embed';
+
 export = {
     name: 'random',
-    description: 'Fetches a random member from a server.',
+    description: 'Fetches random members from the server.',
     global: true,
     options: [{
         name: 'amount',
@@ -13,15 +14,14 @@ export = {
         required: true,
     }],
     execute: async (interaction, client) => {
-        await interaction.deferReply();
         const number = interaction.options.get('amount', true).value;
         if (typeof number !== 'number' || isNaN(number)) {
             return interaction.reply('Invalid arguments');
         }
         else {
-            const members: string[] = [];
-
+            await interaction.deferReply();
             await throttledAllMembersFetch(interaction.guild!);
+            const members: string[] = [];
             interaction.guild!.members.cache.forEach((member, key) => {
                 if (!member.user.bot) {
                     members.push(key);
@@ -29,26 +29,30 @@ export = {
             });
 
             if (members.length <= number) {
-                return interaction.reply(`Too little members in this server to pick ${number} random members`);
+                return interaction.followUp(`Not enough members in this server to pick ${number} random members`);
             } else if (number <= 0) {
-                return interaction.reply('Please provide a valid number > 0');
+                return interaction.followUp('Please provide a valid number > 0');
             } else {
-                let list = '';
+                let picked = [];
                 for (let i = 0; i < number; i++) {
                     const randomNum = Math.round((members.length - 1) * Math.random());
-                    list += `<@${members[randomNum]}> `;
+                    picked.push(members[randomNum]);
                     members.splice(randomNum, 1);
                 }
+                let list = picked.map(id => `<@!${id}>`).join('\n');
 
-                if (list.length >= 1990) {
-                    return interaction.reply('Your member list is too long. Try a smaller number maybe?');
+                if (list.length >= 1900) {
+                    return interaction.followUp('Your member list is too long. Try a smaller number maybe?');
                 } else {
-                    const embed = new EmbedBuilder()
-                        .setColor(13833)
-                        .addFields({ name: `Here ${(number == 1 ? 'is' : 'are')} your ${number} random member${(number == 1) ? '' : 's'}`, value: list })
-                        .setFooter({ text: 'Someone Bot By ApocalypseCalculator - Licensed', iconURL: client?.user?.avatarURL() ?? '' });
-
-                    return interaction.reply({ embeds: [embed] });
+                    return interaction.followUp({
+                        embeds: [
+                            createBaseEmbed(
+                                client,
+                                `${number} random member${(number == 1) ? '' : 's'}`,
+                                list
+                            )
+                        ]
+                    });
                 }
             }
         }
