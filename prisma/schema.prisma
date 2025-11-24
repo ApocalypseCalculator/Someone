@@ -7,26 +7,27 @@ datasource db {
 }
 
 model Channel {
-    channelid        String            @id
-    guild            String
-    blocked          Boolean           @default(false)
-    webhook          String?
-    memberByChannels MemberByChannel[]
+    channelid String  @id
+    guild     String
+    blocked   Boolean @default(false)
+    webhook   String?
 }
 
 model Guild {
-    guildid         String   @id
-    ignorebots      Boolean  @default(true)
-    lastmemberfetch DateTime @default(now())
+    guildid              String               @id
+    ignorebots           Boolean              @default(true)
+    lastmemberfetch      DateTime             @default(now())
+    djs_members_uncached Boolean              @default(true)
+    memberscache         MemberByGuildCache[]
 }
 
-model MemberByChannel {
-    channel   Channel @relation(fields: [channelid], references: [channelid])
-    channelid String
+model MemberByGuildCache {
+    guild     Guild  @relation(fields: [guildid], references: [guildid])
+    guildid   String
     discordid String
 
     // note: we do not create a relation to User to prevent unnecessary indexing & IO performance hits
-    @@id([channelid, discordid]) // only 1 per channel per user
+    @@id([guildid, discordid]) // only 1 per guild per user
 }
 
 model User {
