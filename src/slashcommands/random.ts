@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import { throttledAllMembersFetch } from '../lib/functions';
-
+// TODO: 
 export = {
     name: 'random',
     description: 'Fetches a random member from a server.',
