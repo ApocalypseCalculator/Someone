@@ -12,17 +12,16 @@ export = {
         required: true,
     }],
     execute: async (interaction) => {
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
         const message = interaction.options.get('message', true).value;
         if (typeof message !== 'string') {
-            return interaction.reply('invalid message argument');
+            return interaction.followUp('invalid message argument');
         }
 
         if (hasPing(message)) {
-            return interaction.reply('I cannot ping in a fake message');
+            return interaction.followUp('I cannot ping in a fake message');
         } else {
-            await interaction.deferReply();
-
-            const {id: fakemember} = await getRandomUserID(interaction);
+            const { id: fakemember } = await getRandomUserID(interaction);
             const faker = interaction.guild?.members.cache.get(fakemember);
 
             try {
@@ -33,14 +32,14 @@ export = {
                 let success = await sendWebhook(interaction, faker, message)
 
                 if (success) {
-                    return interaction.followUp({ content: 'Your fake message was sent!', flags: MessageFlags.Ephemeral });
+                    return interaction.followUp('Your fake message was sent!');
                 }
                 else {
                     return interaction.followUp(`There was an error making the fake message. This may be due to missing create webhook permissions.`);
                 }
             } catch (error) {
                 console.log(error);
-                return interaction.reply(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook permissions for this channel.`);
+                return interaction.followUp(`There was an error with making the fake message. This is usually caused by missing permissions. Please grant me either admin or manage webhook permissions for this channel.`);
             }
         }
     },
