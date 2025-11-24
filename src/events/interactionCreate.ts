@@ -20,10 +20,10 @@ export = {
             const command = self.slashcommands.get(interaction.commandName);
 
             if (!command) {
-                return;
+                return interaction.reply('This interaction is deprecated');
             }
-            else if (!interaction.isChatInputCommand() || !interaction.guild) {
-                return interaction.reply('This command can only be used as a context menu command in a server');
+            else if (!interaction.isChatInputCommand()) {
+                return interaction.reply('This command can only be used as a chat input command in a server');
             }
 
             return await command.execute(interaction, self);
