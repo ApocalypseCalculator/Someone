@@ -12,7 +12,7 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
             guildid: guild.id
         }
     });
-    if(guilddata && guilddata.lastmemberfetch > Date.now() - 30 * 60 * 1000) {
+    if(guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 60 * 1000) {
         return false;
     }
     await guild.members.fetch();
@@ -21,11 +21,11 @@ export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
             guildid: guild.id
         },
         update: {
-            lastmemberfetch: Date.now()
+            lastmemberfetch: new Date()
         },
         create: {
             guildid: guild.id,
-            lastmemberfetch: Date.now()
+            lastmemberfetch: new Date()
         }
     });
     return true;
@@ -137,7 +137,7 @@ export async function addToLeaderboard(id: Snowflake): Promise<void> {
         },
         create: {
             discordid: id,
-            lastping: 0,
+            lastping: new Date(0),
             pinged: 1
         }
     })
@@ -163,7 +163,7 @@ export async function canPing(id: Snowflake): Promise<boolean> {
             discordid: id
         }
     });
-    if (user && user.lastping > Date.now() - config.pingcooldown) {
+    if (user && user.lastping.getTime() > Date.now() - config.pingcooldown) {
         return false;
     }
     else {
@@ -177,11 +177,11 @@ export async function usedPing(id: Snowflake): Promise<void> {
             discordid: id
         },
         update: {
-            lastping: Date.now()
+            lastping: new Date()
         },
         create: {
             discordid: id,
-            lastping: Date.now(),
+            lastping: new Date(),
             pinged: 0
         }
     })

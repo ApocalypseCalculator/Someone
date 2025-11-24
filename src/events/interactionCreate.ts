@@ -34,7 +34,7 @@ export = {
                     data: {
                         errid: errid,
                         error: `${err}`,
-                        time: Date.now(),
+                        time: new Date(),
                         guild: interaction.guild?.id ?? 'unknown',
                         channelid: interaction.channel?.id ?? 'unknown',
                         discordid: interaction.user.id,
