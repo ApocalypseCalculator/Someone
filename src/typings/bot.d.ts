@@ -36,7 +36,7 @@ export interface SlashCommand {
     /**
      * The actual stuff the command will do.
      */
-    execute: (interaction: ChatInputCommandInteraction, client?: Someone) => Promise<InteractionResponse>;
+    execute: (interaction: ChatInputCommandInteraction, client?: Someone) => Promise<InteractionResponse | Message>;
 }
 
 export interface EventHandler {
