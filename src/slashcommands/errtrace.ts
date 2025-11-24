@@ -1,5 +1,5 @@
 import { SlashCommand } from '../typings/bot';
-import { config } from '../assets/config';
+import { config } from '../config';
 import { ApplicationCommandOptionType, MessageFlags } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()

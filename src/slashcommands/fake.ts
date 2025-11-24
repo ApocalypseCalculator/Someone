@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, TextChannel, MessageFlags } from 'discord.js';
-import { config } from '../assets/config';
-import { getRandomUserID, sendWebhook } from '../assets/functions';
+import { config } from '../config';
+import { getRandomUserID, sendWebhook } from '../lib/functions';
 import { SlashCommand } from '../typings/bot';
 
 export = {

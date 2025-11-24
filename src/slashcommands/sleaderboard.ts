@@ -1,8 +1,8 @@
-import { config } from '../assets/config';
+import { config } from '../config';
 import { EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
 import { PrismaClient } from '@prisma/client'
-import { throttledAllMembersFetch } from '../assets/functions';
+import { throttledAllMembersFetch } from '../lib/functions';
 const prisma = new PrismaClient()
 
 export = {

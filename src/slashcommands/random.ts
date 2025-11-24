@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { throttledAllMembersFetch } from '../assets/functions';
+import { throttledAllMembersFetch } from '../lib/functions';
 
 export = {
     name: 'random',

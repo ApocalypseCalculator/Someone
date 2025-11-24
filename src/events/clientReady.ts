@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { config } from '../assets/config';
+import { config } from '../config';
 
 import { EventHandler, SlashCommand } from '../typings/bot';
 import { Someone } from '..';

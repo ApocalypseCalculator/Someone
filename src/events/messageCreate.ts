@@ -1,6 +1,6 @@
 import { Message, EmbedBuilder, ChannelType, TextChannel } from 'discord.js';
-import { config } from '../assets/config';
-import { canPing, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../assets/functions';
+import { config } from '../config';
+import { canPing, isDisabled, getRandomUserID, addToLeaderboard, usedPing, sendWebhook } from '../lib/functions';
 import { EventHandler } from '../typings/bot';
 import { Someone } from '..';
 

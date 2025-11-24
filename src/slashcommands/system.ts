@@ -1,7 +1,7 @@
 import { EmbedBuilder, MessageFlags } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { config } from '../assets/config';
-import { formatTime } from '../assets/functions';
+import { config } from '../config';
+import { formatTime } from '../lib/functions';
 import system from 'systeminformation';
 
 export = {

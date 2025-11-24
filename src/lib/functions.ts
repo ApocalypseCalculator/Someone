@@ -1,4 +1,4 @@
-import { config } from './config';
+import { config } from '../config';
 import { CommandInteraction, Guild, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()

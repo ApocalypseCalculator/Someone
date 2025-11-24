@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { version } from '../../package.json';
-import { config } from '../assets/config';
+import { config } from '../config';
 import { SlashCommand } from '../typings/bot';
 
 export = {
