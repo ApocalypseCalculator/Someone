@@ -1,5 +1,6 @@
 import { ChannelType, Client, CommandInteraction, Guild, Message, Role } from "discord.js";
 import { addToLeaderboard, canPing, getRandomUserID, isDisabled, sendWebhook, usedPing } from "./functions";
+import { hasPing, mentionRegex } from "./regex";
 import { config } from "../config";
 
 // core @someone logic
@@ -15,7 +16,7 @@ export default async function pingSomeone(
     includeself: boolean = false,
     role?: Role
 ): Promise<void> {
-    const PING_REGEX = new RegExp(`<@!?${client.user?.id}>`, 'g');
+    const PING_REGEX = mentionRegex(client.user?.id ?? "");
     // debugging
     if (config.logging) {
         console.log(`Attempted ping by: ${author}\nContent: ${source}`);
@@ -85,11 +86,6 @@ export default async function pingSomeone(
         return failed_callback('There was an error with performing the random ping. Please contact the support server if this problem persists.');
     }
 };
-
-function hasPing(content: string) {
-    // good regex trust
-    return /<@!?&?\d{17,22}>/.test(content) || /@everyone/.test(content) || /@here/.test(content);
-}
 
 function replaceString(source: string, regex: RegExp, replace: string[]): string {
     let idx = 0;

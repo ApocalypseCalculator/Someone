@@ -5,6 +5,7 @@ import createBaseEmbed from '../lib/embed';
 
 import prisma from '../lib/db'
 import pingSomeone from '../lib/ping';
+import { mentionRegex } from '../lib/regex';
 
 /*
 note: the bot should not enable the Message Content gateway intent,
@@ -17,6 +18,11 @@ export = {
     async callback(msg: Message) {
         const self = this as unknown as Someone;
         if (!self.user || !msg.mentions.has(self.user)) {
+            return;
+        }
+        const PING_REGEX = mentionRegex(self.user.id ?? "");
+        // ignore reply mentions
+        if(!PING_REGEX.test(msg.content)) {
             return;
         }
 

@@ -1,6 +1,7 @@
 import { ApplicationCommandOptionType, TextChannel, MessageFlags, Role, User } from 'discord.js';
 import { getRandomUserID, sendWebhook } from '../lib/functions';
 import { SlashCommand } from '../typings/bot';
+import { hasPing } from '../lib/regex';
 
 export = {
     name: 'fake',
@@ -73,8 +74,3 @@ export = {
         }
     },
 } as SlashCommand;
-
-function hasPing(content: string) {
-    // good regex trust
-    return /<@!?&?\d{17,22}>/.test(content) || /@everyone/.test(content) || /@here/.test(content);
-}
