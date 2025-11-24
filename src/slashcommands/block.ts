@@ -22,9 +22,10 @@ export = {
             return interaction.reply('Please mention a channel to disable/re-enable.');
         }
 
-        if(! [ChannelType.GuildText, ChannelType.GuildForum, ChannelType.PrivateThread, ChannelType.PublicThread].includes(channel.type)) {
+        if (![ChannelType.GuildText, ChannelType.GuildForum, ChannelType.PrivateThread, ChannelType.PublicThread].includes(channel.type)) {
             return interaction.reply(`Invalid channel`);
         }
+        await interaction.deferReply();
         let chnldata = await prisma.channel.findUnique({
             where: {
                 channelid: channel.id
@@ -44,6 +45,6 @@ export = {
             }
         })
 
-        return interaction.reply(`Channel ${resultchannel.blocked ? "disabled" : "re-enabled"} for @someone pings`);
+        return interaction.followUp(`Channel ${resultchannel.blocked ? "disabled" : "re-enabled"} for @someone pings`);
     },
 } as SlashCommand;
