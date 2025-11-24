@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord.js';
 import { SlashCommand } from '../typings/bot';
-import { throttledAllMembersFetch } from '../lib/functions';
+import { throttledAllMembersFetch } from '../lib/membercache';
 import createBaseEmbed from '../lib/embed';
 
 export = {

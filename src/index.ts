@@ -31,6 +31,8 @@ export class Someone extends Client {
     }
 }
 
+console.log('Starting...');
+
 const client = new Someone();
 
 const events = fs.readdirSync(path.join(process.cwd(), 'src', 'events'));

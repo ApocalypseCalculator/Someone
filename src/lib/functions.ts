@@ -1,35 +1,7 @@
 import { config } from '../config';
-import { CommandInteraction, Guild, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
+import { CommandInteraction, GuildMember, Message, Snowflake, TextChannel, Webhook, WebhookClient } from 'discord.js';
 import prisma from '../lib/db'
-
-/*
-throttle "all members" fetches to once per 30 minutes, returns true if a hard fetch occurred
-downstream consumers should use member cache after calling this
-*/
-export async function throttledAllMembersFetch(guild: Guild): Promise<boolean> {
-    let guilddata = await prisma.guild.findUnique({
-        where: {
-            guildid: guild.id
-        }
-    });
-    if(guilddata && guilddata.lastmemberfetch.getTime() > Date.now() - 30 * 60 * 1000) {
-        return false;
-    }
-    await guild.members.fetch();
-    await prisma.guild.upsert({
-        where: {
-            guildid: guild.id
-        },
-        update: {
-            lastmemberfetch: new Date()
-        },
-        create: {
-            guildid: guild.id,
-            lastmemberfetch: new Date()
-        }
-    });
-    return true;
-}
+import { throttledAllMembersFetch } from './membercache';
 
 export async function getRandomUserID(msg: Message | CommandInteraction): Promise<{id: string, count: number}> {
     const server = msg.guild;

@@ -6,10 +6,12 @@ import { config } from '../config';
 import { EventHandler, SlashCommand } from '../typings/bot';
 import { Someone } from '..';
 import { ActivityType } from 'discord.js';
+import { markUncachedOnColdStart } from '../lib/membercache';
 
 export = {
     name: 'clientReady',
     async callback() {
+		await markUncachedOnColdStart();
         const self = this as unknown as Someone;
 
 		try {

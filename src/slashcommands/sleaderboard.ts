@@ -1,5 +1,5 @@
 import { SlashCommand } from '../typings/bot';
-import { throttledAllMembersFetch } from '../lib/functions';
+import { throttledAllMembersFetch } from '../lib/membercache';
 import prisma from '../lib/db';
 import createBaseEmbed, { createLeaderboardEmbed } from '../lib/embed';
 
